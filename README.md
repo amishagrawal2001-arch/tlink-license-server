@@ -2,6 +2,8 @@
 
 Centralized license management server for all Tlink products.
 
+**[Full Documentation](https://amishagrawal2001-arch.github.io/tlink-license-server/)** | [Admin Dashboard](http://localhost:4000/admin) | [API Health](http://localhost:4000/api/health)
+
 ## Quick Start
 
 ```bash
@@ -146,6 +148,23 @@ npm run package:linux   # Linux x64
 ```
 
 Executables are output to the `dist/` directory.
+
+## Documentation
+
+Full API documentation, client integration guides, and deployment instructions are available at:
+
+**https://amishagrawal2001-arch.github.io/tlink-license-server/**
+
+The documentation covers:
+- Getting Started & How It Works
+- API Reference (Public & Admin endpoints)
+- Client Integration Guide (TypeScript/JavaScript)
+- License Key Format & Validation
+- Installation Guide (macOS, Linux, Windows, Docker)
+- Admin Workflow & Dashboard Usage
+- Multi-App Architecture
+- Production Deployment (nginx, SSL, monitoring)
+- Troubleshooting
 
 ---
 © 2026 Tlink Technologies. All rights reserved.
