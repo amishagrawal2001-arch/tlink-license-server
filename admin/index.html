@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tlink License Server — Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;color:#333}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2)}
+.login-card{background:#fff;padding:40px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.2);width:360px;text-align:center}
+.login-card h1{font-size:24px;margin-bottom:8px;color:#333}
+.login-card p{color:#888;margin-bottom:24px;font-size:14px}
+.login-card input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px;font-size:14px}
+.login-card button{width:100%;padding:12px;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;font-weight:600}
+.login-card button:hover{background:#5a6fd6}
+.login-error{color:#e53e3e;font-size:13px;margin-bottom:12px}
+.app{display:none}
+.topbar{background:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:20px;color:#667eea}
+.topbar .user{display:flex;align-items:center;gap:12px}
+.topbar .user span{font-size:14px;color:#666}
+.topbar button{padding:6px 16px;background:#e53e3e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;padding:24px}
+.stat-card{background:#fff;padding:20px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-align:center}
+.stat-card .value{font-size:32px;font-weight:700;color:#667eea}
+.stat-card .label{font-size:13px;color:#888;margin-top:4px}
+.section{padding:0 24px 24px}
+.section h2{font-size:18px;margin-bottom:16px;color:#333;display:flex;align-items:center;justify-content:space-between}
+.section h2 button{padding:8px 20px;background:#667eea;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+table{width:100%;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);border-collapse:collapse}
+th{background:#f7f8fa;padding:12px 16px;text-align:left;font-size:13px;color:#666;border-bottom:1px solid #eee}
+td{padding:10px 16px;font-size:13px;border-bottom:1px solid #f0f0f0}
+tr:hover td{background:#f7f8fa}
+.badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase}
+.badge.active{background:#c6f6d5;color:#22543d}
+.badge.revoked{background:#fed7d7;color:#9b2c2c}
+.badge.pro{background:#bee3f8;color:#2a4365}
+.badge.enterprise{background:#e9d8fd;color:#44337a}
+.badge.trial{background:#fefcbf;color:#744210}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:#fff;padding:32px;border-radius:12px;width:480px;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:20px;margin-bottom:20px}
+.modal label{display:block;font-size:13px;color:#666;margin-bottom:4px;margin-top:12px}
+.modal input,.modal select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+.modal .actions{display:flex;gap:12px;margin-top:24px;justify-content:flex-end}
+.modal .actions button{padding:10px 24px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+.modal .actions .primary{background:#667eea;color:#fff}
+.modal .actions .cancel{background:#eee;color:#333}
+.key-display{background:#f0f2f5;padding:16px;border-radius:8px;margin-top:16px;text-align:center}
+.key-display code{font-size:18px;font-weight:700;color:#667eea;letter-spacing:1px}
+.hidden{display:none!important}
+.search-bar{display:flex;gap:12px;margin-bottom:16px}
+.search-bar input,.search-bar select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px}
+.search-bar input{flex:1}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-wrap" id="loginView">
+  <div class="login-card">
+    <h1>Tlink License Server</h1>
+    <p>Admin Dashboard</p>
+    <div class="login-error hidden" id="loginError"></div>
+    <input type="text" id="loginUser" placeholder="Username" value="admin">
+    <input type="password" id="loginPass" placeholder="Password">
+    <button onclick="login()">Sign In</button>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app" id="appView">
+  <div class="topbar">
+    <h1>Tlink License Server</h1>
+    <div class="user">
+      <span id="userDisplay"></span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:0;border-bottom:2px solid #e2e8f0;padding:0 24px;background:#fff">
+    <button class="tab-btn active" onclick="switchTab('dashboard')" id="tabDashboard" style="padding:12px 24px;border:none;background:none;font-size:14px;font-weight:600;cursor:pointer;color:#667eea;border-bottom:2px solid #667eea;margin-bottom:-2px">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('settings')" id="tabSettings" style="padding:12px 24px;border:none;background:none;font-size:14px;font-weight:600;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px">Settings</button>
+  </div>
+
+  <!-- Dashboard Tab -->
+  <div id="dashboardTab">
+  <div class="stats" id="statsGrid"></div>
+
+  <div class="section">
+    <h2>License Keys <button onclick="showGenerateModal()">+ Generate Key</button></h2>
+    <div class="search-bar">
+      <input type="text" id="searchCustomer" placeholder="Search customer..." onkeyup="loadKeys()">
+      <select id="filterTier" onchange="loadKeys()"><option value="">All Tiers</option><option value="pro">Pro</option><option value="enterprise">Enterprise</option></select>
+      <select id="filterStatus" onchange="loadKeys()"><option value="">All Status</option><option value="active">Active</option><option value="revoked">Revoked</option></select>
+    </div>
+    <table>
+      <thead><tr><th>Key</th><th>App</th><th>Tier</th><th>Customer</th><th>Expiry</th><th>Machines</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="keysTable"></tbody>
+    </table>
+  </div>
+  </div><!-- end dashboardTab -->
+
+  <!-- Settings Tab -->
+  <div id="settingsTab" style="display:none;padding:24px">
+    <div style="max-width:640px;margin:0 auto">
+      <div style="background:#fff;border-radius:12px;padding:32px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+        <h2 style="font-size:20px;margin-bottom:24px;color:#333">Server Settings</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:24px">Changes require a server restart to take effect.</p>
+
+        <div id="networkInfo" style="background:#f0f2f5;padding:16px;border-radius:8px;margin-bottom:20px;display:none">
+          <p style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px">Server Reachable At:</p>
+          <div id="networkAddresses" style="font-size:13px;color:#666"></div>
+        </div>
+
+        <div style="display:grid;gap:20px">
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">Bind Address</label>
+            <select id="settHost" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px">
+              <option value="0.0.0.0">0.0.0.0 — All interfaces (recommended for production)</option>
+              <option value="127.0.0.1">127.0.0.1 — Localhost only (development)</option>
+            </select>
+            <small style="color:#888">0.0.0.0 makes the server reachable from any network interface</small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">Server Port</label>
+            <input type="number" id="settPort" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="4000">
+            <small style="color:#888">The HTTP port the license server listens on</small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">CORS Origins</label>
+            <input type="text" id="settCors" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="*">
+            <small style="color:#888">Allowed origins (comma-separated, or * for all)</small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">Admin Username</label>
+            <input type="text" id="settAdminUser" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="admin">
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">Admin Password</label>
+            <input type="password" id="settAdminPass" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="Leave blank to keep current">
+            <small style="color:#888">Leave blank to keep current password</small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">JWT Secret</label>
+            <input type="password" id="settJwtSecret" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="Leave blank to keep current">
+            <small style="color:#888">Secret key for JWT token signing. <span id="jwtStatus" style="font-weight:600"></span></small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">License Key Salt</label>
+            <input type="password" id="settKeySalt" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="Leave blank to keep current">
+            <small style="color:#888">Salt for key checksum validation. <span id="saltStatus" style="font-weight:600"></span></small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">Database Path</label>
+            <input type="text" id="settDbPath" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="./data/licenses.json">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:32px;justify-content:flex-end">
+          <button onclick="restartServer()" style="padding:10px 24px;background:#e53e3e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Restart Server</button>
+          <button onclick="saveSettings()" style="padding:10px 24px;background:#667eea;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Save Settings</button>
+        </div>
+
+        <div id="settingsMessage" style="margin-top:16px;padding:12px;border-radius:8px;display:none;font-size:14px"></div>
+      </div>
+    </div>
+  </div><!-- end settingsTab -->
+
+</div><!-- end appView -->
+
+<!-- Generate Key Modal -->
+<div class="modal-overlay hidden" id="generateModal">
+  <div class="modal">
+    <h3>Generate License Key</h3>
+    <label>Application</label>
+    <select id="genApp"></select>
+    <label>Tier</label>
+    <select id="genTier"><option value="pro">Professional</option><option value="enterprise">Enterprise</option></select>
+    <label>Expiry Date</label>
+    <input type="date" id="genExpiry">
+    <label>Customer Name</label>
+    <input type="text" id="genCustomer" placeholder="Customer name">
+    <label>Customer Email</label>
+    <input type="email" id="genEmail" placeholder="customer@example.com">
+    <label>Max Machines</label>
+    <input type="number" id="genMachines" value="1" min="1" max="100">
+    <div class="key-display hidden" id="generatedKeyDisplay">
+      <p style="font-size:13px;color:#888;margin-bottom:8px">Generated Key:</p>
+      <code id="generatedKey"></code>
+    </div>
+    <div class="actions">
+      <button class="cancel" onclick="closeGenerateModal()">Close</button>
+      <button class="primary" onclick="generateKey()">Generate</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin + '/api'
+let token = localStorage.getItem('tlink_admin_token')
+
+if (token) showApp()
+
+async function login() {
+  const username = document.getElementById('loginUser').value
+  const password = document.getElementById('loginPass').value
+  try {
+    const res = await fetch(API + '/auth/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password })
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    token = data.token
+    localStorage.setItem('tlink_admin_token', token)
+    showApp()
+  } catch (e) {
+    const el = document.getElementById('loginError')
+    el.textContent = e.message
+    el.classList.remove('hidden')
+  }
+}
+
+function logout() {
+  token = null
+  localStorage.removeItem('tlink_admin_token')
+  document.getElementById('loginView').style.display = 'flex'
+  document.getElementById('appView').style.display = 'none'
+}
+
+function showApp() {
+  document.getElementById('loginView').style.display = 'none'
+  document.getElementById('appView').style.display = 'block'
+  document.getElementById('userDisplay').textContent = 'Admin'
+  loadStats()
+  loadKeys()
+  loadApps()
+}
+
+function authHeaders() { return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } }
+
+async function loadStats() {
+  try {
+    const res = await fetch(API + '/dashboard/stats', { headers: authHeaders() })
+    if (res.status === 401) return logout()
+    const data = await res.json()
+    document.getElementById('statsGrid').innerHTML = [
+      { v: data.totalKeys, l: 'Total Keys' },
+      { v: data.activeKeys, l: 'Active' },
+      { v: data.revokedKeys, l: 'Revoked' },
+      { v: data.expiredKeys, l: 'Expired' },
+      { v: data.totalActivations, l: 'Activations' },
+      { v: data.totalApps, l: 'Apps' },
+    ].map(s => `<div class="stat-card"><div class="value">${s.v}</div><div class="label">${s.l}</div></div>`).join('')
+  } catch (e) { console.error(e) }
+}
+
+async function loadKeys() {
+  const customer = document.getElementById('searchCustomer').value
+  const tier = document.getElementById('filterTier').value
+  const status = document.getElementById('filterStatus').value
+  const params = new URLSearchParams()
+  if (customer) params.set('customer', customer)
+  if (tier) params.set('tier', tier)
+  if (status) params.set('status', status)
+  try {
+    const res = await fetch(API + '/keys?' + params.toString(), { headers: authHeaders() })
+    if (res.status === 401) return logout()
+    const data = await res.json()
+    document.getElementById('keysTable').innerHTML = data.keys.map(k => `
+      <tr>
+        <td><code style="font-size:12px">${k.key}</code></td>
+        <td>${k.app_name}</td>
+        <td><span class="badge ${k.tier}">${k.tier}</span></td>
+        <td>${k.customer_name || '—'}<br><small style="color:#888">${k.customer_email || ''}</small></td>
+        <td>${k.expiry_date}</td>
+        <td>${k.max_machines}</td>
+        <td><span class="badge ${k.status}">${k.status}</span></td>
+        <td>${k.status === 'active' ? `<button onclick="revokeKey(${k.id})" style="background:#e53e3e;color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px">Revoke</button>` : ''}</td>
+      </tr>
+    `).join('')
+  } catch (e) { console.error(e) }
+}
+
+async function loadApps() {
+  try {
+    const res = await fetch(API + '/keys/apps/list', { headers: authHeaders() })
+    const data = await res.json()
+    document.getElementById('genApp').innerHTML = data.apps.map(a => `<option value="${a.app_code}">${a.app_name} (${a.app_code})</option>`).join('')
+  } catch (e) { console.error(e) }
+}
+
+function showGenerateModal() {
+  document.getElementById('generateModal').classList.remove('hidden')
+  document.getElementById('generatedKeyDisplay').classList.add('hidden')
+  const d = new Date(); d.setFullYear(d.getFullYear() + 1)
+  document.getElementById('genExpiry').value = d.toISOString().split('T')[0]
+}
+
+function closeGenerateModal() { document.getElementById('generateModal').classList.add('hidden') }
+
+async function generateKey() {
+  const body = {
+    appCode: document.getElementById('genApp').value,
+    tier: document.getElementById('genTier').value,
+    expiryDate: document.getElementById('genExpiry').value,
+    customerName: document.getElementById('genCustomer').value,
+    customerEmail: document.getElementById('genEmail').value,
+    maxMachines: parseInt(document.getElementById('genMachines').value),
+  }
+  try {
+    const res = await fetch(API + '/keys', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    document.getElementById('generatedKey').textContent = data.key
+    document.getElementById('generatedKeyDisplay').classList.remove('hidden')
+    loadKeys()
+    loadStats()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+function switchTab(tab) {
+  document.getElementById('dashboardTab').style.display = tab === 'dashboard' ? 'block' : 'none'
+  document.getElementById('settingsTab').style.display = tab === 'settings' ? 'block' : 'none'
+  document.getElementById('tabDashboard').style.color = tab === 'dashboard' ? '#667eea' : '#888'
+  document.getElementById('tabDashboard').style.borderBottomColor = tab === 'dashboard' ? '#667eea' : 'transparent'
+  document.getElementById('tabSettings').style.color = tab === 'settings' ? '#667eea' : '#888'
+  document.getElementById('tabSettings').style.borderBottomColor = tab === 'settings' ? '#667eea' : 'transparent'
+  if (tab === 'settings') loadSettings()
+}
+
+async function loadSettings() {
+  try {
+    const res = await fetch(API + '/settings', { headers: authHeaders() })
+    if (res.status === 401) return logout()
+    const data = await res.json()
+    document.getElementById('settHost').value = data.host || '0.0.0.0'
+    document.getElementById('settPort').value = data.port
+    document.getElementById('settCors').value = data.corsOrigins
+    document.getElementById('settAdminUser').value = data.adminUsername
+    document.getElementById('settDbPath').value = data.databasePath
+    // Show network addresses
+    if (data.networkAddresses && data.networkAddresses.length > 0) {
+      document.getElementById('networkInfo').style.display = 'block'
+      document.getElementById('networkAddresses').innerHTML = data.networkAddresses.map(a =>
+        `<div style="margin:4px 0"><code style="background:#e2e8f0;padding:2px 8px;border-radius:4px">http://${a.address}:${data.port}</code> <span style="color:#888">(${a.name})</span></div>`
+      ).join('')
+    }
+    document.getElementById('jwtStatus').textContent = data.jwtSecretSet ? '(Configured)' : '(Using default — change this!)'
+    document.getElementById('jwtStatus').style.color = data.jwtSecretSet ? '#38a169' : '#e53e3e'
+    document.getElementById('saltStatus').textContent = data.keySaltSet ? '(Configured)' : '(Using default — change this!)'
+    document.getElementById('saltStatus').style.color = data.keySaltSet ? '#38a169' : '#e53e3e'
+  } catch (e) { console.error(e) }
+}
+
+async function saveSettings() {
+  const body = { host: document.getElementById('settHost').value, port: document.getElementById('settPort').value, corsOrigins: document.getElementById('settCors').value, adminUsername: document.getElementById('settAdminUser').value, databasePath: document.getElementById('settDbPath').value }
+  const pass = document.getElementById('settAdminPass').value
+  if (pass) body.adminPassword = pass
+  const jwt = document.getElementById('settJwtSecret').value
+  if (jwt) body.jwtSecret = jwt
+  const salt = document.getElementById('settKeySalt').value
+  if (salt) body.keySalt = salt
+
+  try {
+    const res = await fetch(API + '/settings', { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) })
+    const data = await res.json()
+    const msgEl = document.getElementById('settingsMessage')
+    if (res.ok) {
+      msgEl.style.display = 'block'; msgEl.style.background = '#c6f6d5'; msgEl.style.color = '#22543d'
+      msgEl.textContent = data.message
+    } else {
+      msgEl.style.display = 'block'; msgEl.style.background = '#fed7d7'; msgEl.style.color = '#9b2c2c'
+      msgEl.textContent = data.error
+    }
+    setTimeout(() => { msgEl.style.display = 'none' }, 5000)
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+async function restartServer() {
+  if (!confirm('Restart the license server? It will be briefly unavailable.')) return
+  try {
+    await fetch(API + '/settings/restart', { method: 'POST', headers: authHeaders() })
+    const msgEl = document.getElementById('settingsMessage')
+    msgEl.style.display = 'block'; msgEl.style.background = '#fefcbf'; msgEl.style.color = '#744210'
+    msgEl.textContent = 'Server is restarting... Page will reload in 3 seconds.'
+    setTimeout(() => { window.location.reload() }, 3000)
+  } catch (e) {
+    const msgEl = document.getElementById('settingsMessage')
+    msgEl.style.display = 'block'; msgEl.style.background = '#fefcbf'; msgEl.style.color = '#744210'
+    msgEl.textContent = 'Server is restarting... Refresh the page manually.'
+  }
+}
+
+async function revokeKey(id) {
+  if (!confirm('Revoke this license key?')) return
+  try {
+    await fetch(API + '/keys/' + id, { method: 'DELETE', headers: authHeaders() })
+    loadKeys()
+    loadStats()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tlink License Server - API Documentation</title>
+<style>
+:root {
+  --primary: #667eea;
+  --primary-dark: #5a6fd6;
+  --primary-light: #8b9cf0;
+  --bg: #ffffff;
+  --bg-alt: #f8f9fc;
+  --bg-code: #f4f5f9;
+  --bg-sidebar: #fafbfe;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --border: #e5e7eb;
+  --border-light: #f0f1f5;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  --code-bg: #1e1e2e;
+  --code-text: #cdd6f4;
+  --code-keyword: #cba6f7;
+  --code-string: #a6e3a1;
+  --code-number: #fab387;
+  --code-comment: #6c7086;
+  --code-key: #89b4fa;
+  --sidebar-width: 280px;
+  --header-height: 60px;
+  --method-get: #10b981;
+  --method-post: #3b82f6;
+  --method-put: #f59e0b;
+  --method-delete: #ef4444;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+  --bg: #0f0f1a;
+  --bg-alt: #161625;
+  --bg-code: #1a1a2e;
+  --bg-sidebar: #12121f;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --border: #2d2d44;
+  --border-light: #1e1e32;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--text);
+  text-decoration: none;
+  min-width: var(--sidebar-width);
+}
+
+.header-brand svg { flex-shrink: 0; }
+
+.header-brand span { color: var(--primary); }
+
+.header-search {
+  flex: 1;
+  max-width: 440px;
+  margin: 0 24px;
+  position: relative;
+}
+
+.header-search input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-alt);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.header-search input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+.header-search input::placeholder { color: var(--text-light); }
+
+.header-search .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+.header-search .search-kbd {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: var(--bg);
+}
+
+.search-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 200;
+}
+
+.search-results.active { display: block; }
+
+.search-result-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+  transition: background .15s;
+}
+
+.search-result-item:hover { background: var(--bg-alt); }
+.search-result-item:last-child { border-bottom: none; }
+
+.search-result-item .sr-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.search-result-item .sr-section {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  transition: background .2s, border-color .2s;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-alt);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.version-badge {
+  font-size: 12px;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-weight: 600;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 50;
+  transition: transform .3s;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.sidebar-section {
+  margin-bottom: 6px;
+}
+
+.sidebar-heading {
+  padding: 8px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-light);
+}
+
+.sidebar-link {
+  display: block;
+  padding: 6px 20px 6px 24px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color .15s, background .15s;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+.sidebar-link.active {
+  color: var(--primary);
+  font-weight: 600;
+  border-left-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.sidebar-link .method-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-right: 5px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  vertical-align: middle;
+}
+
+.method-tag.get { background: color-mix(in srgb, var(--method-get) 15%, transparent); color: var(--method-get); }
+.method-tag.post { background: color-mix(in srgb, var(--method-post) 15%, transparent); color: var(--method-post); }
+.method-tag.put { background: color-mix(in srgb, var(--method-put) 15%, transparent); color: var(--method-put); }
+.method-tag.delete { background: color-mix(in srgb, var(--method-delete) 15%, transparent); color: var(--method-delete); }
+
+/* ── Content ── */
+.content {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  padding: 40px 48px 80px;
+  max-width: 920px;
+}
+
+.content section {
+  margin-bottom: 56px;
+  scroll-margin-top: 80px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 32px;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+p { margin-bottom: 14px; color: var(--text); font-size: 15px; }
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+  font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 13px;
+  background: var(--bg-code);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--primary);
+}
+
+.intro-text {
+  font-size: 17px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.8;
+}
+
+/* ── Code Blocks ── */
+.code-block {
+  position: relative;
+  margin: 16px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: #181825;
+  font-size: 12px;
+  color: #6c7086;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+}
+
+.code-header .lang { text-transform: uppercase; font-weight: 600; }
+
+.copy-btn {
+  background: none;
+  border: 1px solid #313244;
+  border-radius: 5px;
+  padding: 3px 10px;
+  color: #6c7086;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+
+.copy-btn:hover { border-color: #a6adc8; color: #a6adc8; }
+.copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+.code-body {
+  background: var(--code-bg);
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.code-body pre {
+  margin: 0;
+  color: var(--code-text);
+  font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', monospace;
+  white-space: pre;
+}
+
+/* Syntax tokens */
+.tok-kw { color: var(--code-keyword); }
+.tok-str { color: var(--code-string); }
+.tok-num { color: var(--code-number); }
+.tok-cmt { color: var(--code-comment); font-style: italic; }
+.tok-key { color: var(--code-key); }
+
+/* ── Tables ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+  background: var(--bg-alt);
+  border-bottom: 2px solid var(--border);
+}
+
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: top;
+}
+
+td code {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ── Endpoint Cards ── */
+.endpoint {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 24px 0;
+  overflow: hidden;
+}
+
+.endpoint-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--bg-alt);
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s;
+}
+
+.endpoint-header:hover { background: color-mix(in srgb, var(--bg-alt) 80%, var(--primary)); }
+
+.endpoint-method {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  min-width: 64px;
+  text-align: center;
+}
+
+.endpoint-method.get { background: color-mix(in srgb, var(--method-get) 15%, transparent); color: var(--method-get); }
+.endpoint-method.post { background: color-mix(in srgb, var(--method-post) 15%, transparent); color: var(--method-post); }
+.endpoint-method.put { background: color-mix(in srgb, var(--method-put) 15%, transparent); color: var(--method-put); }
+.endpoint-method.delete { background: color-mix(in srgb, var(--method-delete) 15%, transparent); color: var(--method-delete); }
+
+.endpoint-url {
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.endpoint-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.endpoint-toggle {
+  color: var(--text-light);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+
+.endpoint.open .endpoint-toggle { transform: rotate(180deg); }
+
+.endpoint-body {
+  display: none;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.endpoint.open .endpoint-body { display: block; }
+
+/* ── Info Boxes ── */
+.info-box {
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.info-box.note {
+  background: color-mix(in srgb, var(--info) 8%, transparent);
+  border-left: 3px solid var(--info);
+  color: var(--text);
+}
+
+.info-box.warning {
+  background: color-mix(in srgb, var(--warning) 8%, transparent);
+  border-left: 3px solid var(--warning);
+  color: var(--text);
+}
+
+.info-box.success {
+  background: color-mix(in srgb, var(--success) 8%, transparent);
+  border-left: 3px solid var(--success);
+  color: var(--text);
+}
+
+.info-box.danger {
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border-left: 3px solid var(--error);
+  color: var(--text);
+}
+
+.info-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Key Diagram ── */
+.key-diagram {
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 14px;
+  line-height: 2;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 24px;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.key-diagram .seg { padding: 2px 4px; border-radius: 3px; }
+.key-diagram .seg-prefix { background: #45475a; color: #f5e0dc; }
+.key-diagram .seg-app { background: #313244; color: #89b4fa; }
+.key-diagram .seg-tier { background: #313244; color: #cba6f7; }
+.key-diagram .seg-expiry { background: #313244; color: #a6e3a1; }
+.key-diagram .seg-rand { background: #313244; color: #fab387; }
+.key-diagram .seg-check { background: #313244; color: #f38ba8; }
+
+/* ── Architecture ── */
+.ascii-art {
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 24px;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 16px 0;
+  white-space: pre;
+}
+
+/* ── Try It Section ── */
+.try-it {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  background: var(--bg-alt);
+}
+
+.try-it h4 {
+  margin-top: 0;
+  color: var(--primary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+}
+
+.try-it label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+
+.try-it input, .try-it select, .try-it textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.try-it input:focus, .try-it select:focus, .try-it textarea:focus {
+  border-color: var(--primary);
+}
+
+.try-it textarea { min-height: 80px; resize: vertical; }
+
+.try-it-btn {
+  margin-top: 14px;
+  padding: 9px 20px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.try-it-btn:hover { background: var(--primary-dark); }
+
+.try-it-response {
+  margin-top: 14px;
+  display: none;
+}
+
+.try-it-response.active { display: block; }
+
+/* ── Collapsible ── */
+details {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+
+details summary {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  background: var(--bg-alt);
+  color: var(--text);
+  user-select: none;
+  transition: background .15s;
+}
+
+details summary:hover { background: color-mix(in srgb, var(--bg-alt) 80%, var(--primary)); }
+
+details .details-body {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Lists ── */
+ul, ol {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+li {
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+/* ── Mobile toggle ── */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 8px;
+  cursor: pointer;
+}
+
+/* ── Footer ── */
+.footer {
+  margin-left: var(--sidebar-width);
+  padding: 24px 48px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* ── Responsive ── */
+@media (max-width: 840px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-md); }
+  .content { margin-left: 0; padding: 28px 20px 60px; }
+  .footer { margin-left: 0; padding: 24px 20px; }
+  .mobile-menu-btn { display: block; }
+  .header-brand { min-width: auto; }
+  .header-search { margin: 0 12px; }
+  .endpoint-desc { display: none; }
+}
+
+/* ── Chip for tiers ── */
+.tier-chip {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.tier-chip.pro { background: color-mix(in srgb, var(--info) 15%, transparent); color: var(--info); }
+.tier-chip.enterprise { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); }
+
+/* ── Checklist ── */
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+.checklist li {
+  padding: 6px 0;
+  padding-left: 28px;
+  position: relative;
+}
+.checklist li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+}
+
+/* ── Flow steps ── */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding-left: 0;
+}
+.steps li {
+  counter-increment: step;
+  padding-left: 42px;
+  position: relative;
+  margin-bottom: 16px;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="header">
+  <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle menu">
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+
+  <a href="#" class="header-brand">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#667eea"/><path d="M8 9h12M8 14h8M8 19h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    Tlink <span>License Server</span>
+  </a>
+
+  <div class="header-search">
+    <svg class="search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Search docs..." autocomplete="off">
+    <span class="search-kbd">/</span>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <div class="header-actions">
+    <span class="version-badge">v1.0.0</span>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <svg id="themeIcon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Getting Started</div>
+    <a href="#overview" class="sidebar-link">Overview</a>
+    <a href="#quick-start" class="sidebar-link">Quick Start</a>
+    <a href="#architecture" class="sidebar-link">Architecture</a>
+    <a href="#tech-stack" class="sidebar-link">Tech Stack</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Configuration</div>
+    <a href="#env-vars" class="sidebar-link">Environment Variables</a>
+    <a href="#database-setup" class="sidebar-link">Database Setup</a>
+    <a href="#cors-config" class="sidebar-link">CORS Configuration</a>
+    <a href="#rate-limiting" class="sidebar-link">Rate Limiting</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Authentication</div>
+    <a href="#auth-flow" class="sidebar-link">Login Flow</a>
+    <a href="#jwt-usage" class="sidebar-link">JWT Tokens</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">License API (Public)</div>
+    <a href="#ep-activate" class="sidebar-link"><span class="method-tag post">POST</span> /activate</a>
+    <a href="#ep-validate" class="sidebar-link"><span class="method-tag post">POST</span> /validate</a>
+    <a href="#ep-deactivate" class="sidebar-link"><span class="method-tag post">POST</span> /deactivate</a>
+    <a href="#ep-heartbeat" class="sidebar-link"><span class="method-tag post">POST</span> /heartbeat</a>
+    <a href="#ep-health" class="sidebar-link"><span class="method-tag get">GET</span> /health</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Admin API (Protected)</div>
+    <a href="#ep-login" class="sidebar-link"><span class="method-tag post">POST</span> /auth/login</a>
+    <a href="#ep-list-keys" class="sidebar-link"><span class="method-tag get">GET</span> /keys</a>
+    <a href="#ep-create-key" class="sidebar-link"><span class="method-tag post">POST</span> /keys</a>
+    <a href="#ep-get-key" class="sidebar-link"><span class="method-tag get">GET</span> /keys/:id</a>
+    <a href="#ep-update-key" class="sidebar-link"><span class="method-tag put">PUT</span> /keys/:id</a>
+    <a href="#ep-revoke-key" class="sidebar-link"><span class="method-tag delete">DEL</span> /keys/:id</a>
+    <a href="#ep-activations" class="sidebar-link"><span class="method-tag get">GET</span> /keys/:id/activations</a>
+    <a href="#ep-list-apps" class="sidebar-link"><span class="method-tag get">GET</span> /apps/list</a>
+    <a href="#ep-register-app" class="sidebar-link"><span class="method-tag post">POST</span> /apps/register</a>
+    <a href="#ep-stats" class="sidebar-link"><span class="method-tag get">GET</span> /dashboard/stats</a>
+    <a href="#ep-recent" class="sidebar-link"><span class="method-tag get">GET</span> /dashboard/recent</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Guides</div>
+    <a href="#key-format" class="sidebar-link">Key Format</a>
+    <a href="#client-integration" class="sidebar-link">Client Integration</a>
+    <a href="#admin-dashboard" class="sidebar-link">Admin Dashboard</a>
+    <a href="#deployment" class="sidebar-link">Deployment</a>
+    <a href="#troubleshooting" class="sidebar-link">Troubleshooting</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<main class="content" id="mainContent">
+
+<!-- ────── GETTING STARTED ────── -->
+<section id="overview">
+  <h1>Tlink License Server</h1>
+  <p class="intro-text">
+    A centralized license management server for Tlink products. Generate, activate,
+    validate, and manage license keys for your Electron/desktop applications with a
+    full-featured admin dashboard and REST API.
+  </p>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>
+      <strong>Base URL:</strong> <code>http://localhost:4000</code> (development)<br>
+      All API endpoints are prefixed with <code>/api</code>.
+    </div>
+  </div>
+</section>
+
+<section id="quick-start">
+  <h2>Quick Start</h2>
+  <ol class="steps">
+    <li>
+      <strong>Clone and install dependencies</strong>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>git clone &lt;repo-url&gt; tlink-license-server
+cd tlink-license-server
+npm install</pre></div>
+      </div>
+    </li>
+    <li>
+      <strong>Configure environment</strong>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>cp .env.example .env
+<span class="tok-cmt"># Edit .env with your settings (see Configuration section)</span></pre></div>
+      </div>
+    </li>
+    <li>
+      <strong>Seed the database</strong>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>npm run seed</pre></div>
+      </div>
+      <p>This creates an admin user, registers the NetOps app (<code>NO</code>), and generates sample license keys.</p>
+    </li>
+    <li>
+      <strong>Start the server</strong>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre><span class="tok-cmt"># Development (with auto-reload)</span>
+npm run dev
+
+<span class="tok-cmt"># Production</span>
+npm start</pre></div>
+      </div>
+    </li>
+    <li>
+      <strong>Open the admin dashboard</strong>
+      <p>Navigate to <a href="http://localhost:4000/admin" target="_blank">http://localhost:4000/admin</a> and login with <code>admin</code> / <code>admin123</code>.</p>
+    </li>
+  </ol>
+</section>
+
+<section id="architecture">
+  <h2>Architecture</h2>
+  <div class="ascii-art">
++-------------------+        +------------------------+        +------------------+
+|  Electron/Angular |  HTTP  |  Tlink License Server  |        |   JSON Database  |
+|    Client App     |&lt;------&gt;|     (Express.js)       |&lt;------&gt;|  data/licenses   |
++-------------------+        +------------------------+        +------------------+
+        |                            |         |
+        |  /api/license/*            |         |
+        |  activate, validate,       |         |
+        |  deactivate, heartbeat     |         |
+        |                            |         |
+        |                    +-------+-------+ |
+        |                    | Middleware     | |
+        |                    | - Helmet (CSP) | |
+        |                    | - CORS         | |
+        |                    | - Rate Limit   | |
+        |                    | - JWT Auth     | |
+        |                    +-------+-------+ |
+        |                            |         |
+        |                    +-------+-------+ |
+        |                    | Services       | |
+        |                    | - KeyGenerator | |
+        |                    | - KeyValidator | |
+        |                    | - Analytics    | |
+        |                    +---------------+ |
+        |                                      |
++-------------------+                          |
+|  Admin Dashboard  |  /api/keys/*             |
+|  (Static HTML)    |  /api/dashboard/*        |
+|  /admin           |  /api/auth/login         |
++-------------------+--------------------------+</div>
+</section>
+
+<section id="tech-stack">
+  <h2>Tech Stack</h2>
+  <table>
+    <thead><tr><th>Component</th><th>Technology</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Runtime</td><td><code>Node.js</code></td><td>Server runtime</td></tr>
+      <tr><td>Framework</td><td><code>Express 4.21</code></td><td>HTTP server and routing</td></tr>
+      <tr><td>Auth</td><td><code>jsonwebtoken 9.x</code></td><td>JWT token generation and verification</td></tr>
+      <tr><td>Password</td><td><code>bcryptjs 2.x</code></td><td>Admin password hashing</td></tr>
+      <tr><td>Security</td><td><code>helmet 7.x</code></td><td>HTTP security headers</td></tr>
+      <tr><td>Rate Limiting</td><td><code>express-rate-limit 7.x</code></td><td>Request throttling</td></tr>
+      <tr><td>CORS</td><td><code>cors 2.8</code></td><td>Cross-origin resource sharing</td></tr>
+      <tr><td>Logging</td><td><code>morgan</code></td><td>HTTP request logging</td></tr>
+      <tr><td>Database</td><td>JSON file (<code>data/licenses.json</code>)</td><td>Persistent storage</td></tr>
+      <tr><td>Dev Server</td><td><code>nodemon 3.x</code></td><td>Auto-restart on file changes</td></tr>
+      <tr><td>Tests</td><td><code>jest 29.x</code></td><td>Unit and integration testing</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────── CONFIGURATION ────── -->
+<section id="env-vars">
+  <h2>Configuration</h2>
+  <h3>Environment Variables</h3>
+  <p>Create a <code>.env</code> file in the project root. All variables have sensible defaults for development.</p>
+  <table>
+    <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>PORT</code></td><td><code>4000</code></td><td>HTTP server port</td></tr>
+      <tr><td><code>JWT_SECRET</code></td><td><code>change-me</code></td><td>Secret key for signing JWT tokens. <strong>Must change in production.</strong></td></tr>
+      <tr><td><code>KEY_SALT</code></td><td><code>change-me</code></td><td>Salt for license key checksum generation. <strong>Must change in production.</strong></td></tr>
+      <tr><td><code>ADMIN_USERNAME</code></td><td><code>admin</code></td><td>Default admin username (used by seed script)</td></tr>
+      <tr><td><code>ADMIN_PASSWORD</code></td><td><code>admin123</code></td><td>Default admin password (used by seed script)</td></tr>
+      <tr><td><code>CORS_ORIGINS</code></td><td><code>*</code></td><td>Allowed origins. Comma-separated list or <code>*</code> for all.</td></tr>
+      <tr><td><code>DATABASE_PATH</code></td><td><code>./data/licenses.db</code></td><td>Path to the JSON database file (the <code>.db</code> extension is replaced with <code>.json</code>).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box warning">
+    <span class="icon">&#9888;</span>
+    <div><strong>Production Warning:</strong> Always change <code>JWT_SECRET</code>, <code>KEY_SALT</code>, and <code>ADMIN_PASSWORD</code> before deploying. Using defaults is a security risk.</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">.env</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>PORT=4000
+JWT_SECRET=your-super-secret-key-here
+KEY_SALT=your-unique-salt-for-keys
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=a-strong-password
+CORS_ORIGINS=http://localhost:4200,app://tlink-netops
+DATABASE_PATH=./data/licenses.db</pre></div>
+  </div>
+</section>
+
+<section id="database-setup">
+  <h3>Database Setup</h3>
+  <p>The server uses a flat-file JSON database stored at the configured <code>DATABASE_PATH</code> (default: <code>data/licenses.json</code>). No external database is required.</p>
+  <p>The database is automatically created on first run. It contains four collections:</p>
+  <table>
+    <thead><tr><th>Collection</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>apps</code></td><td>Registered applications (app_code, app_name)</td></tr>
+      <tr><td><code>license_keys</code></td><td>Generated license keys with metadata</td></tr>
+      <tr><td><code>activations</code></td><td>Machine activations linked to keys</td></tr>
+      <tr><td><code>admin_users</code></td><td>Admin users with bcrypt-hashed passwords</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>Run <code>npm run seed</code> after initial setup to populate the database with an admin user, the NetOps app, and sample license keys.</div>
+  </div>
+</section>
+
+<section id="cors-config">
+  <h3>CORS Configuration</h3>
+  <p>Set the <code>CORS_ORIGINS</code> environment variable to control which origins can make requests to the API.</p>
+  <ul>
+    <li><code>*</code> &mdash; Allow all origins (development only)</li>
+    <li>Comma-separated list &mdash; e.g., <code>http://localhost:4200,app://tlink-netops</code></li>
+  </ul>
+  <p>For Electron apps, use the <code>app://</code> protocol scheme as your origin.</p>
+</section>
+
+<section id="rate-limiting">
+  <h3>Rate Limiting</h3>
+  <p>Two rate limit tiers are applied via <code>express-rate-limit</code>:</p>
+  <table>
+    <thead><tr><th>Tier</th><th>Routes</th><th>Window</th><th>Max Requests</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Public</strong></td><td><code>/api/auth/*</code>, <code>/api/license/*</code></td><td>60 seconds</td><td>30 requests</td></tr>
+      <tr><td><strong>Admin</strong></td><td><code>/api/keys/*</code>, <code>/api/dashboard/*</code></td><td>60 seconds</td><td>100 requests</td></tr>
+    </tbody>
+  </table>
+  <p>Rate limit headers are returned in responses (<code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>, <code>RateLimit-Reset</code>).</p>
+</section>
+
+<!-- ────── AUTHENTICATION ────── -->
+<section id="auth-flow">
+  <h2>Authentication</h2>
+  <h3>Admin Login Flow</h3>
+  <ol class="steps">
+    <li><strong>POST credentials to <code>/api/auth/login</code></strong> with <code>username</code> and <code>password</code>.</li>
+    <li><strong>Receive a JWT token</strong> in the response along with the user object.</li>
+    <li><strong>Include the token</strong> in subsequent requests as <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+    <li><strong>Token expires in 24 hours.</strong> Re-authenticate to obtain a fresh token.</li>
+  </ol>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Login and get token</span>
+curl -X POST http://localhost:4000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}'</pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>{
+  <span class="tok-key">"token"</span>: <span class="tok-str">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="tok-key">"user"</span>: {
+    <span class="tok-key">"id"</span>: <span class="tok-num">1</span>,
+    <span class="tok-key">"username"</span>: <span class="tok-str">"admin"</span>,
+    <span class="tok-key">"role"</span>: <span class="tok-str">"admin"</span>
+  }
+}</pre></div>
+  </div>
+</section>
+
+<section id="jwt-usage">
+  <h3>JWT Token Usage</h3>
+  <p>The JWT payload includes <code>id</code>, <code>username</code>, and <code>role</code>. Tokens are signed with the <code>JWT_SECRET</code> and expire after <strong>24 hours</strong>.</p>
+  <p>Include the token in the <code>Authorization</code> header for all admin endpoints:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>curl http://localhost:4000/api/keys \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."</pre></div>
+  </div>
+
+  <h4>Error Responses</h4>
+  <table>
+    <thead><tr><th>Status</th><th>Body</th><th>Cause</th></tr></thead>
+    <tbody>
+      <tr><td><code>401</code></td><td><code>{"error": "Missing or invalid authorization header"}</code></td><td>No <code>Authorization</code> header or missing <code>Bearer</code> prefix</td></tr>
+      <tr><td><code>401</code></td><td><code>{"error": "Invalid or expired token"}</code></td><td>Token is malformed, tampered, or expired</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────── PUBLIC LICENSE API ────── -->
+<section id="ep-activate">
+  <h2>API Reference &mdash; License (Public)</h2>
+  <p>These endpoints are publicly accessible (no authentication required) and are rate-limited to 30 requests per minute.</p>
+
+  <div class="endpoint open" id="endpoint-activate">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method post">POST</span>
+      <span class="endpoint-url">/api/license/activate</span>
+      <span class="endpoint-desc">Activate a license key on a machine</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Activates a license key for a specific machine. If the key is already activated on this machine, the activation record is refreshed. Respects the <code>max_machines</code> limit on the key.</p>
+
+      <h4>Request Body</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>key</code></td><td>string</td><td>Yes</td><td>The license key string</td></tr>
+          <tr><td><code>machineId</code></td><td>string</td><td>Yes</td><td>Unique identifier for the machine (e.g., hardware fingerprint)</td></tr>
+          <tr><td><code>appCode</code></td><td>string</td><td>No</td><td>Application code to verify the key belongs to this app</td></tr>
+          <tr><td><code>appVersion</code></td><td>string</td><td>No</td><td>Version of the client application</td></tr>
+          <tr><td><code>os</code></td><td>string</td><td>No</td><td>Operating system identifier</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"valid"</span>: <span class="tok-kw">true</span>,
+  <span class="tok-key">"tier"</span>: <span class="tok-str">"pro"</span>,
+  <span class="tok-key">"expiry"</span>: <span class="tok-str">"2027-12-31"</span>,
+  <span class="tok-key">"customer"</span>: <span class="tok-str">"Demo Pro User"</span>,
+  <span class="tok-key">"message"</span>: <span class="tok-str">"Activated"</span>
+}</pre></div>
+      </div>
+
+      <h4>Error Responses</h4>
+      <table>
+        <thead><tr><th>Status</th><th>Error</th><th>Cause</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td><code>key and machineId are required</code></td><td>Missing required fields</td></tr>
+          <tr><td><code>400</code></td><td><code>Invalid license key</code></td><td>Key format/checksum invalid</td></tr>
+          <tr><td><code>400</code></td><td><code>License key has expired</code></td><td>Key expiry date has passed</td></tr>
+          <tr><td><code>403</code></td><td><code>License key has been revoked</code></td><td>Key was revoked by admin</td></tr>
+          <tr><td><code>403</code></td><td><code>Key not valid for this application</code></td><td>appCode mismatch</td></tr>
+          <tr><td><code>403</code></td><td><code>Max activations reached (...)</code></td><td>All machine slots are taken</td></tr>
+          <tr><td><code>404</code></td><td><code>License key not found</code></td><td>Key not in database</td></tr>
+        </tbody>
+      </table>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl -X POST http://localhost:4000/api/license/activate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "TLINK-NO-P4KR-2712-X9HJ-AB3F",
+    "machineId": "a1b2c3d4-hardware-id",
+    "appCode": "NO",
+    "appVersion": "1.2.0",
+    "os": "darwin"
+  }'</pre></div>
+      </div>
+
+      <div class="try-it">
+        <h4>Try It</h4>
+        <label>Server URL</label>
+        <input type="text" id="try-activate-url" value="http://localhost:4000">
+        <label>License Key</label>
+        <input type="text" id="try-activate-key" placeholder="TLINK-NO-P4KR-2712-X9HJ-AB3F">
+        <label>Machine ID</label>
+        <input type="text" id="try-activate-machine" placeholder="my-machine-id">
+        <button class="try-it-btn" onclick="tryActivate()">Send Request</button>
+        <div class="try-it-response" id="try-activate-response"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-validate">
+  <div class="endpoint" id="endpoint-validate">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method post">POST</span>
+      <span class="endpoint-url">/api/license/validate</span>
+      <span class="endpoint-desc">Validate a license key</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Checks if a license key is valid and not expired. Optionally updates the last-seen timestamp for a machine activation.</p>
+
+      <h4>Request Body</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>key</code></td><td>string</td><td>Yes</td><td>The license key string</td></tr>
+          <tr><td><code>machineId</code></td><td>string</td><td>No</td><td>Machine ID to update last_seen timestamp</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200) &mdash; Valid</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"valid"</span>: <span class="tok-kw">true</span>,
+  <span class="tok-key">"tier"</span>: <span class="tok-str">"enterprise"</span>,
+  <span class="tok-key">"expiry"</span>: <span class="tok-str">"2027-12-31"</span>,
+  <span class="tok-key">"daysRemaining"</span>: <span class="tok-num">645</span>,
+  <span class="tok-key">"customer"</span>: <span class="tok-str">"Demo Enterprise"</span>
+}</pre></div>
+      </div>
+
+      <h4>Response &mdash; Invalid / Expired</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"valid"</span>: <span class="tok-kw">false</span>,
+  <span class="tok-key">"reason"</span>: <span class="tok-str">"Expired"</span>,
+  <span class="tok-key">"tier"</span>: <span class="tok-str">"pro"</span>,
+  <span class="tok-key">"expiry"</span>: <span class="tok-str">"2025-01-01"</span>
+}</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl -X POST http://localhost:4000/api/license/validate \
+  -H "Content-Type: application/json" \
+  -d '{"key": "TLINK-NO-P4KR-2712-X9HJ-AB3F", "machineId": "a1b2c3d4"}'</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-deactivate">
+  <div class="endpoint" id="endpoint-deactivate">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method post">POST</span>
+      <span class="endpoint-url">/api/license/deactivate</span>
+      <span class="endpoint-desc">Deactivate a license on a machine</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Deactivates a license key on a specific machine, freeing up a machine slot.</p>
+
+      <h4>Request Body</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>key</code></td><td>string</td><td>Yes</td><td>The license key</td></tr>
+          <tr><td><code>machineId</code></td><td>string</td><td>Yes</td><td>Machine ID to deactivate</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"success"</span>: <span class="tok-kw">true</span>,
+  <span class="tok-key">"message"</span>: <span class="tok-str">"Deactivated"</span>
+}</pre></div>
+      </div>
+
+      <h4>No Active Activation Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"success"</span>: <span class="tok-kw">false</span>,
+  <span class="tok-key">"message"</span>: <span class="tok-str">"No active activation found"</span>
+}</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl -X POST http://localhost:4000/api/license/deactivate \
+  -H "Content-Type: application/json" \
+  -d '{"key": "TLINK-NO-P4KR-2712-X9HJ-AB3F", "machineId": "a1b2c3d4"}'</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-heartbeat">
+  <div class="endpoint" id="endpoint-heartbeat">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method post">POST</span>
+      <span class="endpoint-url">/api/license/heartbeat</span>
+      <span class="endpoint-desc">Heartbeat check for active licenses</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Lightweight periodic check for license validity. Updates the <code>last_seen_at</code> timestamp on the activation record. Designed to be called at intervals (e.g., every 4 hours) from the client.</p>
+
+      <h4>Request Body</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>key</code></td><td>string</td><td>Yes</td><td>The license key</td></tr>
+          <tr><td><code>machineId</code></td><td>string</td><td>Yes</td><td>Machine ID</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{ <span class="tok-key">"valid"</span>: <span class="tok-kw">true</span> }
+<span class="tok-cmt">// or</span>
+{ <span class="tok-key">"valid"</span>: <span class="tok-kw">false</span> }</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl -X POST http://localhost:4000/api/license/heartbeat \
+  -H "Content-Type: application/json" \
+  -d '{"key": "TLINK-NO-P4KR-2712-X9HJ-AB3F", "machineId": "a1b2c3d4"}'</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-health">
+  <div class="endpoint" id="endpoint-health">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method get">GET</span>
+      <span class="endpoint-url">/api/health</span>
+      <span class="endpoint-desc">Health check endpoint</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns server health status, version, and uptime. No authentication required.</p>
+
+      <h4>Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"status"</span>: <span class="tok-str">"ok"</span>,
+  <span class="tok-key">"version"</span>: <span class="tok-str">"1.0.0"</span>,
+  <span class="tok-key">"uptime"</span>: <span class="tok-num">3621.45</span>
+}</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl http://localhost:4000/api/health</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────── ADMIN API ────── -->
+<section id="ep-login">
+  <h2>API Reference &mdash; Admin (Protected)</h2>
+  <p>All admin endpoints (except <code>/api/auth/login</code>) require a valid JWT token in the <code>Authorization: Bearer &lt;token&gt;</code> header. Rate-limited to 100 requests per minute.</p>
+
+  <div class="endpoint" id="endpoint-login">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method post">POST</span>
+      <span class="endpoint-url">/api/auth/login</span>
+      <span class="endpoint-desc">Authenticate and receive JWT token</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Authenticate with admin credentials and receive a JWT token valid for 24 hours.</p>
+
+      <h4>Request Body</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>username</code></td><td>string</td><td>Yes</td><td>Admin username</td></tr>
+          <tr><td><code>password</code></td><td>string</td><td>Yes</td><td>Admin password</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"token"</span>: <span class="tok-str">"eyJhbGciOiJIUzI1NiIs..."</span>,
+  <span class="tok-key">"user"</span>: { <span class="tok-key">"id"</span>: <span class="tok-num">1</span>, <span class="tok-key">"username"</span>: <span class="tok-str">"admin"</span>, <span class="tok-key">"role"</span>: <span class="tok-str">"admin"</span> }
+}</pre></div>
+      </div>
+
+      <h4>Error Responses</h4>
+      <table>
+        <thead><tr><th>Status</th><th>Error</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td><code>Username and password required</code></td></tr>
+          <tr><td><code>401</code></td><td><code>Invalid credentials</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="ep-list-keys">
+  <div class="endpoint" id="endpoint-list-keys">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method get">GET</span>
+      <span class="endpoint-url">/api/keys</span>
+      <span class="endpoint-desc">List all license keys (filterable)</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns all license keys, sorted by creation date (newest first). Supports optional filters.</p>
+
+      <h4>Query Parameters</h4>
+      <table>
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>app</code></td><td>string</td><td>Filter by app code (e.g., <code>NO</code>)</td></tr>
+          <tr><td><code>tier</code></td><td>string</td><td>Filter by tier: <code>pro</code> or <code>enterprise</code></td></tr>
+          <tr><td><code>status</code></td><td>string</td><td>Filter by status: <code>active</code> or <code>revoked</code></td></tr>
+          <tr><td><code>customer</code></td><td>string</td><td>Search in customer name or email (case-insensitive)</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"keys"</span>: [
+    {
+      <span class="tok-key">"id"</span>: <span class="tok-num">1</span>,
+      <span class="tok-key">"key"</span>: <span class="tok-str">"TLINK-NO-P4KR-2712-X9HJ-AB3F"</span>,
+      <span class="tok-key">"app_id"</span>: <span class="tok-num">1</span>,
+      <span class="tok-key">"tier"</span>: <span class="tok-str">"pro"</span>,
+      <span class="tok-key">"customer_name"</span>: <span class="tok-str">"Demo Pro User"</span>,
+      <span class="tok-key">"customer_email"</span>: <span class="tok-str">"pro@demo.com"</span>,
+      <span class="tok-key">"expiry_date"</span>: <span class="tok-str">"2027-12-31"</span>,
+      <span class="tok-key">"max_machines"</span>: <span class="tok-num">3</span>,
+      <span class="tok-key">"status"</span>: <span class="tok-str">"active"</span>,
+      <span class="tok-key">"app_code"</span>: <span class="tok-str">"NO"</span>,
+      <span class="tok-key">"app_name"</span>: <span class="tok-str">"Tlink NetOps"</span>,
+      <span class="tok-key">"created_at"</span>: <span class="tok-str">"2025-01-15T..."</span>
+    }
+  ],
+  <span class="tok-key">"total"</span>: <span class="tok-num">1</span>
+}</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl http://localhost:4000/api/keys?tier=pro&amp;status=active \
+  -H "Authorization: Bearer &lt;token&gt;"</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-create-key">
+  <div class="endpoint" id="endpoint-create-key">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method post">POST</span>
+      <span class="endpoint-url">/api/keys</span>
+      <span class="endpoint-desc">Generate a new license key</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Generates a new license key for a registered application.</p>
+
+      <h4>Request Body</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>appCode</code></td><td>string</td><td>Yes</td><td>Application code (e.g., <code>NO</code>)</td></tr>
+          <tr><td><code>tier</code></td><td>string</td><td>Yes</td><td><code>pro</code> or <code>enterprise</code></td></tr>
+          <tr><td><code>expiryDate</code></td><td>string</td><td>Yes</td><td>Expiry date in <code>YYYY-MM-DD</code> format</td></tr>
+          <tr><td><code>customerName</code></td><td>string</td><td>No</td><td>Customer name</td></tr>
+          <tr><td><code>customerEmail</code></td><td>string</td><td>No</td><td>Customer email</td></tr>
+          <tr><td><code>maxMachines</code></td><td>number</td><td>No</td><td>Max simultaneous activations (default: 1)</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (201)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"id"</span>: <span class="tok-num">4</span>,
+  <span class="tok-key">"key"</span>: <span class="tok-str">"TLINK-NO-EXYZ-2812-R5KP-QW8N"</span>,
+  <span class="tok-key">"appCode"</span>: <span class="tok-str">"NO"</span>,
+  <span class="tok-key">"tier"</span>: <span class="tok-str">"enterprise"</span>,
+  <span class="tok-key">"expiry"</span>: <span class="tok-str">"2028-12-31"</span>,
+  <span class="tok-key">"customer"</span>: <span class="tok-str">"Acme Corp"</span>,
+  <span class="tok-key">"maxMachines"</span>: <span class="tok-num">5</span>
+}</pre></div>
+      </div>
+
+      <h4>Error Responses</h4>
+      <table>
+        <thead><tr><th>Status</th><th>Error</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td><code>appCode, tier, and expiryDate are required</code></td></tr>
+          <tr><td><code>404</code></td><td><code>App "XX" not found</code></td></tr>
+        </tbody>
+      </table>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl -X POST http://localhost:4000/api/keys \
+  -H "Authorization: Bearer &lt;token&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "appCode": "NO",
+    "tier": "enterprise",
+    "expiryDate": "2028-12-31",
+    "customerName": "Acme Corp",
+    "customerEmail": "license@acme.com",
+    "maxMachines": 5
+  }'</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-get-key">
+  <div class="endpoint" id="endpoint-get-key">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method get">GET</span>
+      <span class="endpoint-url">/api/keys/:id</span>
+      <span class="endpoint-desc">Get a single license key with activations</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns full details for a single license key, including all activation records.</p>
+
+      <h4>URL Parameters</h4>
+      <table>
+        <thead><tr><th>Param</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>:id</code></td><td>Numeric ID of the license key</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"id"</span>: <span class="tok-num">1</span>,
+  <span class="tok-key">"key"</span>: <span class="tok-str">"TLINK-NO-P4KR-2712-X9HJ-AB3F"</span>,
+  <span class="tok-key">"tier"</span>: <span class="tok-str">"pro"</span>,
+  <span class="tok-key">"customer_name"</span>: <span class="tok-str">"Demo Pro User"</span>,
+  <span class="tok-key">"expiry_date"</span>: <span class="tok-str">"2027-12-31"</span>,
+  <span class="tok-key">"max_machines"</span>: <span class="tok-num">3</span>,
+  <span class="tok-key">"status"</span>: <span class="tok-str">"active"</span>,
+  <span class="tok-key">"app_code"</span>: <span class="tok-str">"NO"</span>,
+  <span class="tok-key">"app_name"</span>: <span class="tok-str">"Tlink NetOps"</span>,
+  <span class="tok-key">"activations"</span>: [
+    {
+      <span class="tok-key">"id"</span>: <span class="tok-num">1</span>,
+      <span class="tok-key">"machine_id"</span>: <span class="tok-str">"a1b2c3d4"</span>,
+      <span class="tok-key">"app_version"</span>: <span class="tok-str">"1.2.0"</span>,
+      <span class="tok-key">"os"</span>: <span class="tok-str">"darwin"</span>,
+      <span class="tok-key">"last_seen_at"</span>: <span class="tok-str">"2025-01-15T10:30:00Z"</span>,
+      <span class="tok-key">"deactivated_at"</span>: <span class="tok-kw">null</span>
+    }
+  ]
+}</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl http://localhost:4000/api/keys/1 \
+  -H "Authorization: Bearer &lt;token&gt;"</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-update-key">
+  <div class="endpoint" id="endpoint-update-key">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method put">PUT</span>
+      <span class="endpoint-url">/api/keys/:id</span>
+      <span class="endpoint-desc">Update a license key</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Updates one or more fields on a license key. Only provide the fields you want to change.</p>
+
+      <h4>Request Body (all optional)</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>tier</code></td><td>string</td><td><code>pro</code> or <code>enterprise</code></td></tr>
+          <tr><td><code>expiryDate</code></td><td>string</td><td>New expiry date (<code>YYYY-MM-DD</code>)</td></tr>
+          <tr><td><code>maxMachines</code></td><td>number</td><td>New machine limit</td></tr>
+          <tr><td><code>status</code></td><td>string</td><td><code>active</code> or <code>revoked</code></td></tr>
+          <tr><td><code>customerName</code></td><td>string</td><td>Updated customer name</td></tr>
+          <tr><td><code>customerEmail</code></td><td>string</td><td>Updated customer email</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{ <span class="tok-key">"success"</span>: <span class="tok-kw">true</span> }</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl -X PUT http://localhost:4000/api/keys/1 \
+  -H "Authorization: Bearer &lt;token&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"maxMachines": 5, "expiryDate": "2029-12-31"}'</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-revoke-key">
+  <div class="endpoint" id="endpoint-revoke-key">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method delete">DELETE</span>
+      <span class="endpoint-url">/api/keys/:id</span>
+      <span class="endpoint-desc">Revoke a license key</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Revokes a license key by setting its status to <code>revoked</code>. The key record is not deleted. Activated machines will fail validation on their next check.</p>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"success"</span>: <span class="tok-kw">true</span>,
+  <span class="tok-key">"message"</span>: <span class="tok-str">"Key revoked"</span>
+}</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl -X DELETE http://localhost:4000/api/keys/1 \
+  -H "Authorization: Bearer &lt;token&gt;"</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-activations">
+  <div class="endpoint" id="endpoint-activations">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method get">GET</span>
+      <span class="endpoint-url">/api/keys/:id/activations</span>
+      <span class="endpoint-desc">List activations for a key</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns all activation records for a specific license key, including deactivated ones.</p>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"activations"</span>: [
+    {
+      <span class="tok-key">"id"</span>: <span class="tok-num">1</span>,
+      <span class="tok-key">"key_id"</span>: <span class="tok-num">1</span>,
+      <span class="tok-key">"machine_id"</span>: <span class="tok-str">"a1b2c3d4"</span>,
+      <span class="tok-key">"app_version"</span>: <span class="tok-str">"1.2.0"</span>,
+      <span class="tok-key">"os"</span>: <span class="tok-str">"darwin"</span>,
+      <span class="tok-key">"ip_address"</span>: <span class="tok-str">"::1"</span>,
+      <span class="tok-key">"last_seen_at"</span>: <span class="tok-str">"2025-01-15T10:30:00Z"</span>,
+      <span class="tok-key">"deactivated_at"</span>: <span class="tok-kw">null</span>,
+      <span class="tok-key">"created_at"</span>: <span class="tok-str">"2025-01-15T08:00:00Z"</span>
+    }
+  ]
+}</pre></div>
+      </div>
+
+      <h4>cURL Example</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>curl http://localhost:4000/api/keys/1/activations \
+  -H "Authorization: Bearer &lt;token&gt;"</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-list-apps">
+  <div class="endpoint" id="endpoint-list-apps">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method get">GET</span>
+      <span class="endpoint-url">/api/keys/apps/list</span>
+      <span class="endpoint-desc">List registered applications</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns all registered applications.</p>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"apps"</span>: [
+    { <span class="tok-key">"id"</span>: <span class="tok-num">1</span>, <span class="tok-key">"app_code"</span>: <span class="tok-str">"NO"</span>, <span class="tok-key">"app_name"</span>: <span class="tok-str">"Tlink NetOps"</span>, <span class="tok-key">"created_at"</span>: <span class="tok-str">"..."</span> }
+  ]
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-register-app">
+  <div class="endpoint" id="endpoint-register-app">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method post">POST</span>
+      <span class="endpoint-url">/api/keys/apps/register</span>
+      <span class="endpoint-desc">Register a new application</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Registers a new application that can have license keys generated for it.</p>
+
+      <h4>Request Body</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>appCode</code></td><td>string</td><td>Yes</td><td>Short uppercase code (e.g., <code>NO</code>, <code>TM</code>)</td></tr>
+          <tr><td><code>appName</code></td><td>string</td><td>Yes</td><td>Human-readable name</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (201)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"id"</span>: <span class="tok-num">2</span>,
+  <span class="tok-key">"appCode"</span>: <span class="tok-str">"TM"</span>,
+  <span class="tok-key">"appName"</span>: <span class="tok-str">"Tlink Monitor"</span>
+}</pre></div>
+      </div>
+
+      <h4>Error Responses</h4>
+      <table>
+        <thead><tr><th>Status</th><th>Error</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td><code>appCode and appName required</code></td></tr>
+          <tr><td><code>409</code></td><td><code>App code already exists</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="ep-stats">
+  <div class="endpoint" id="endpoint-stats">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method get">GET</span>
+      <span class="endpoint-url">/api/dashboard/stats</span>
+      <span class="endpoint-desc">Get dashboard statistics</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns aggregated statistics for the admin dashboard.</p>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>{
+  <span class="tok-key">"totalKeys"</span>: <span class="tok-num">15</span>,
+  <span class="tok-key">"activeKeys"</span>: <span class="tok-num">12</span>,
+  <span class="tok-key">"revokedKeys"</span>: <span class="tok-num">2</span>,
+  <span class="tok-key">"expiredKeys"</span>: <span class="tok-num">1</span>,
+  <span class="tok-key">"totalActivations"</span>: <span class="tok-num">23</span>,
+  <span class="tok-key">"totalApps"</span>: <span class="tok-num">1</span>,
+  <span class="tok-key">"tierBreakdown"</span>: [
+    { <span class="tok-key">"tier"</span>: <span class="tok-str">"pro"</span>, <span class="tok-key">"count"</span>: <span class="tok-num">8</span> },
+    { <span class="tok-key">"tier"</span>: <span class="tok-str">"enterprise"</span>, <span class="tok-key">"count"</span>: <span class="tok-num">4</span> }
+  ],
+  <span class="tok-key">"appBreakdown"</span>: [
+    { <span class="tok-key">"app_name"</span>: <span class="tok-str">"Tlink NetOps"</span>, <span class="tok-key">"count"</span>: <span class="tok-num">12</span> }
+  ]
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ep-recent">
+  <div class="endpoint" id="endpoint-recent">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="endpoint-method get">GET</span>
+      <span class="endpoint-url">/api/dashboard/recent</span>
+      <span class="endpoint-desc">Get recent activation activity</span>
+      <svg class="endpoint-toggle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns the most recent activation events, enriched with key and app metadata.</p>
+
+      <h4>Query Parameters</h4>
+      <table>
+        <thead><tr><th>Param</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>limit</code></td><td><code>20</code></td><td>Max number of records to return</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Success Response (200)</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre>[
+  {
+    <span class="tok-key">"id"</span>: <span class="tok-num">5</span>,
+    <span class="tok-key">"machine_id"</span>: <span class="tok-str">"abc123"</span>,
+    <span class="tok-key">"key"</span>: <span class="tok-str">"TLINK-NO-P4KR-2712-X9HJ-AB3F"</span>,
+    <span class="tok-key">"customer_name"</span>: <span class="tok-str">"Demo Pro User"</span>,
+    <span class="tok-key">"tier"</span>: <span class="tok-str">"pro"</span>,
+    <span class="tok-key">"app_name"</span>: <span class="tok-str">"Tlink NetOps"</span>,
+    <span class="tok-key">"created_at"</span>: <span class="tok-str">"2025-01-15T..."</span>
+  }
+]</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────── KEY FORMAT ────── -->
+<section id="key-format">
+  <h2>Key Format</h2>
+  <p>Tlink license keys follow a structured format that encodes application, tier, and expiry information with a checksum for integrity verification.</p>
+
+  <h3>Structure</h3>
+  <div class="key-diagram">
+<span class="seg seg-prefix">TLINK</span>-<span class="seg seg-app">NO</span>-<span class="seg seg-tier">P4KR</span>-<span class="seg seg-expiry">2712</span>-<span class="seg seg-rand">X9HJ</span>-<span class="seg seg-check">AB3F</span>
+  |       |     |       |       |       |
+  |       |     |       |       |       +-- Checksum (FNV-1a hash, 4 chars)
+  |       |     |       |       +---------- Random segment (4 chars)
+  |       |     |       +------------------ Expiry: YY=27, MM=12 (Dec 2027)
+  |       |     +-------------------------- Tier char + 3 random (P=Pro, E=Enterprise)
+  |       +-------------------------------- App code (2 chars, padded with X)
+  +---------------------------------------- Prefix (always TLINK)</div>
+
+  <h3>Segment Details</h3>
+  <table>
+    <thead><tr><th>Segment</th><th>Length</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>TLINK</code></td><td>5</td><td>Fixed prefix identifying Tlink keys</td></tr>
+      <tr><td>App Code</td><td>2</td><td>Two-letter application code, padded with <code>X</code> if needed</td></tr>
+      <tr><td>Tier Segment</td><td>4</td><td>First character encodes tier (<code>P</code>=Pro, <code>E</code>=Enterprise), followed by 3 random characters</td></tr>
+      <tr><td>Expiry</td><td>4</td><td>Two-digit year + two-digit month (<code>YYMM</code>)</td></tr>
+      <tr><td>Random</td><td>4</td><td>Random characters from charset <code>A-Z (no I, O) + 2-9</code></td></tr>
+      <tr><td>Checksum</td><td>4</td><td>FNV-1a hash of all preceding segments + salt, encoded as 4 characters</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Checksum Algorithm</h3>
+  <p>The checksum is computed using FNV-1a (Fowler-Noll-Vo) hash:</p>
+  <ol>
+    <li>Concatenate all segments with dashes: <code>TLINK-NO-P4KR-2712-X9HJ</code></li>
+    <li>Append the <code>KEY_SALT</code> environment variable: <code>TLINK-NO-P4KR-2712-X9HJ-&lt;salt&gt;</code></li>
+    <li>Compute FNV-1a hash (32-bit)</li>
+    <li>Convert to 4-character string using the charset: <code>ABCDEFGHJKLMNPQRSTUVWXYZ23456789</code></li>
+  </ol>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>The charset intentionally excludes <code>I</code>, <code>O</code>, <code>0</code>, and <code>1</code> to avoid visual ambiguity when users type keys manually.</div>
+  </div>
+
+  <h3>Tier Encoding</h3>
+  <table>
+    <thead><tr><th>Character</th><th>Tier</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>P</code></td><td><span class="tier-chip pro">Pro</span></td><td>Professional tier</td></tr>
+      <tr><td><code>E</code></td><td><span class="tier-chip enterprise">Enterprise</span></td><td>Enterprise tier</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────── CLIENT INTEGRATION ────── -->
+<section id="client-integration">
+  <h2>Client Integration</h2>
+  <p>Guide for integrating Tlink license validation into Electron/Angular desktop applications.</p>
+
+  <h3>License Activation on First Launch</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-kw">interface</span> LicenseResponse {
+  valid: <span class="tok-kw">boolean</span>;
+  tier?: <span class="tok-str">'pro'</span> | <span class="tok-str">'enterprise'</span>;
+  expiry?: <span class="tok-kw">string</span>;
+  customer?: <span class="tok-kw">string</span>;
+  message?: <span class="tok-kw">string</span>;
+}
+
+<span class="tok-kw">async function</span> activateLicense(key: <span class="tok-kw">string</span>): Promise&lt;LicenseResponse&gt; {
+  <span class="tok-kw">const</span> machineId = getMachineFingerprint(); <span class="tok-cmt">// Your machine ID logic</span>
+
+  <span class="tok-kw">const</span> response = <span class="tok-kw">await</span> fetch(<span class="tok-str">'http://your-server:4000/api/license/activate'</span>, {
+    method: <span class="tok-str">'POST'</span>,
+    headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
+    body: JSON.stringify({
+      key,
+      machineId,
+      appCode: <span class="tok-str">'NO'</span>,
+      appVersion: <span class="tok-str">'1.0.0'</span>,
+      os: process.platform
+    })
+  });
+
+  <span class="tok-kw">return</span> response.json();
+}</pre></div>
+  </div>
+
+  <h3>Validate on Startup</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-kw">async function</span> validateOnStartup(savedKey: <span class="tok-kw">string</span>): Promise&lt;<span class="tok-kw">boolean</span>&gt; {
+  <span class="tok-kw">try</span> {
+    <span class="tok-kw">const</span> response = <span class="tok-kw">await</span> fetch(<span class="tok-str">'http://your-server:4000/api/license/validate'</span>, {
+      method: <span class="tok-str">'POST'</span>,
+      headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
+      body: JSON.stringify({
+        key: savedKey,
+        machineId: getMachineFingerprint()
+      })
+    });
+
+    <span class="tok-kw">const</span> data = <span class="tok-kw">await</span> response.json();
+
+    <span class="tok-kw">if</span> (data.valid) {
+      <span class="tok-cmt">// Store tier info for feature gating</span>
+      localStorage.setItem(<span class="tok-str">'license_tier'</span>, data.tier);
+      localStorage.setItem(<span class="tok-str">'license_expiry'</span>, data.expiry);
+      <span class="tok-kw">return true</span>;
+    }
+
+    <span class="tok-cmt">// License invalid - show activation screen</span>
+    <span class="tok-kw">return false</span>;
+  } <span class="tok-kw">catch</span> (err) {
+    <span class="tok-cmt">// Network error - use offline fallback</span>
+    <span class="tok-kw">return</span> checkOfflineLicense(savedKey);
+  }
+}</pre></div>
+  </div>
+
+  <h3>Heartbeat Setup</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-kw">const</span> HEARTBEAT_INTERVAL = <span class="tok-num">4</span> * <span class="tok-num">60</span> * <span class="tok-num">60</span> * <span class="tok-num">1000</span>; <span class="tok-cmt">// 4 hours</span>
+
+<span class="tok-kw">function</span> startHeartbeat(key: <span class="tok-kw">string</span>) {
+  <span class="tok-kw">const</span> machineId = getMachineFingerprint();
+
+  setInterval(<span class="tok-kw">async</span> () =&gt; {
+    <span class="tok-kw">try</span> {
+      <span class="tok-kw">const</span> res = <span class="tok-kw">await</span> fetch(<span class="tok-str">'http://your-server:4000/api/license/heartbeat'</span>, {
+        method: <span class="tok-str">'POST'</span>,
+        headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
+        body: JSON.stringify({ key, machineId })
+      });
+      <span class="tok-kw">const</span> data = <span class="tok-kw">await</span> res.json();
+
+      <span class="tok-kw">if</span> (!data.valid) {
+        <span class="tok-cmt">// License expired or revoked</span>
+        showLicenseExpiredDialog();
+      }
+    } <span class="tok-kw">catch</span> (err) {
+      <span class="tok-cmt">// Server unreachable - continue with grace period</span>
+      console.warn(<span class="tok-str">'Heartbeat failed, will retry next interval'</span>);
+    }
+  }, HEARTBEAT_INTERVAL);
+}</pre></div>
+  </div>
+
+  <h3>Offline Fallback</h3>
+  <p>When the license server is unreachable, implement a grace period using locally cached license data:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-kw">function</span> checkOfflineLicense(key: <span class="tok-kw">string</span>): <span class="tok-kw">boolean</span> {
+  <span class="tok-kw">const</span> lastValidated = localStorage.getItem(<span class="tok-str">'last_validated_at'</span>);
+  <span class="tok-kw">const</span> expiry = localStorage.getItem(<span class="tok-str">'license_expiry'</span>);
+  <span class="tok-kw">const</span> GRACE_DAYS = <span class="tok-num">7</span>;
+
+  <span class="tok-kw">if</span> (!lastValidated || !expiry) <span class="tok-kw">return false</span>;
+
+  <span class="tok-kw">const</span> daysSinceValidation = (Date.now() - <span class="tok-kw">new</span> Date(lastValidated).getTime())
+    / (<span class="tok-num">1000</span> * <span class="tok-num">60</span> * <span class="tok-num">60</span> * <span class="tok-num">24</span>);
+  <span class="tok-kw">const</span> notExpired = <span class="tok-kw">new</span> Date() &lt; <span class="tok-kw">new</span> Date(expiry);
+
+  <span class="tok-kw">return</span> notExpired &amp;&amp; daysSinceValidation &lt; GRACE_DAYS;
+}</pre></div>
+  </div>
+
+  <h3>CSP Configuration for Electron</h3>
+  <p>If your Electron app uses Content Security Policy, allow connections to the license server:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt">&lt;!-- In your Electron app's index.html --&gt;</span>
+&lt;meta http-equiv=<span class="tok-str">"Content-Security-Policy"</span>
+  content=<span class="tok-str">"default-src 'self';
+    connect-src 'self' http://localhost:4000 https://license.yourdomain.com;
+    script-src 'self';"</span>&gt;</pre></div>
+  </div>
+</section>
+
+<!-- ────── ADMIN DASHBOARD ────── -->
+<section id="admin-dashboard">
+  <h2>Admin Dashboard</h2>
+  <p>The built-in admin dashboard provides a web interface for managing license keys, viewing activations, and monitoring usage.</p>
+
+  <h3>Access</h3>
+  <p>Navigate to <code>http://localhost:4000/admin</code> (or <code>/</code>, which redirects to <code>/admin</code>).</p>
+
+  <h3>Features</h3>
+  <ul>
+    <li><strong>Dashboard Overview</strong> &mdash; Total keys, active/revoked/expired counts, tier breakdown, app distribution</li>
+    <li><strong>Key Management</strong> &mdash; Generate new keys, search/filter existing keys, view details</li>
+    <li><strong>Activation Tracking</strong> &mdash; View active machines per key, last-seen timestamps, OS and version info</li>
+    <li><strong>Application Management</strong> &mdash; Register new applications, view app-specific statistics</li>
+    <li><strong>Key Operations</strong> &mdash; Update key properties (tier, expiry, machine limit), revoke keys</li>
+  </ul>
+
+  <h3>Dashboard API Endpoints Used</h3>
+  <table>
+    <thead><tr><th>Endpoint</th><th>Dashboard Usage</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /api/dashboard/stats</code></td><td>Overview cards and charts</td></tr>
+      <tr><td><code>GET /api/dashboard/recent</code></td><td>Recent activity feed</td></tr>
+      <tr><td><code>GET /api/keys</code></td><td>Key list with filtering</td></tr>
+      <tr><td><code>POST /api/keys</code></td><td>Generate new key form</td></tr>
+      <tr><td><code>GET /api/keys/apps/list</code></td><td>App selector dropdowns</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>The admin dashboard is served as static HTML from the <code>admin/</code> directory. It communicates with the API using the JWT token stored in the browser session.</div>
+  </div>
+</section>
+
+<!-- ────── DEPLOYMENT ────── -->
+<section id="deployment">
+  <h2>Deployment</h2>
+
+  <h3>Docker Deployment</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">dockerfile</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>FROM node:<span class="tok-num">20</span>-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+RUN npm run seed
+EXPOSE <span class="tok-num">4000</span>
+CMD [<span class="tok-str">"node"</span>, <span class="tok-str">"src/index.js"</span>]</pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Build and run</span>
+docker build -t tlink-license-server .
+docker run -d \
+  --name tlink-license \
+  -p <span class="tok-num">4000</span>:<span class="tok-num">4000</span> \
+  -v tlink-data:/app/data \
+  -e JWT_SECRET=<span class="tok-str">"your-production-secret"</span> \
+  -e KEY_SALT=<span class="tok-str">"your-production-salt"</span> \
+  -e ADMIN_PASSWORD=<span class="tok-str">"strong-password-here"</span> \
+  -e CORS_ORIGINS=<span class="tok-str">"https://yourdomain.com,app://tlink-netops"</span> \
+  tlink-license-server</pre></div>
+  </div>
+
+  <h3>PM2 Production Setup</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Install PM2 globally</span>
+npm install -g pm2
+
+<span class="tok-cmt"># Start the server</span>
+pm2 start src/index.js --name tlink-license
+
+<span class="tok-cmt"># Enable startup on reboot</span>
+pm2 startup
+pm2 save
+
+<span class="tok-cmt"># Monitor</span>
+pm2 monit</pre></div>
+  </div>
+
+  <h3>Production Environment Variables</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">.env.production</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>PORT=4000
+JWT_SECRET=<span class="tok-cmt"># Generate: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"</span>
+KEY_SALT=<span class="tok-cmt"># Generate: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</span>
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<span class="tok-cmt"># Use a strong, unique password</span>
+CORS_ORIGINS=https://yourdomain.com,app://tlink-netops
+DATABASE_PATH=./data/licenses.db</pre></div>
+  </div>
+
+  <h3>Security Checklist</h3>
+  <ul class="checklist">
+    <li>Change <code>JWT_SECRET</code> to a cryptographically random string (64+ chars)</li>
+    <li>Change <code>KEY_SALT</code> to a unique random string</li>
+    <li>Set a strong <code>ADMIN_PASSWORD</code></li>
+    <li>Restrict <code>CORS_ORIGINS</code> to specific domains (no wildcard)</li>
+    <li>Use HTTPS with a reverse proxy (nginx, Caddy) in front of the server</li>
+    <li>Place behind a firewall; only expose port 443</li>
+    <li>Mount <code>/data</code> as a persistent volume for database durability</li>
+    <li>Set up regular backups of the <code>data/licenses.json</code> file</li>
+    <li>Monitor rate-limit headers for abuse patterns</li>
+    <li>Rotate <code>JWT_SECRET</code> periodically (forces re-authentication)</li>
+  </ul>
+
+  <h3>Backup Strategy</h3>
+  <p>The database is a single JSON file. Back it up with a simple cron job:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Add to crontab (daily at 2 AM)</span>
+0 2 * * * cp /app/data/licenses.json /backups/licenses-$(date +\%Y\%m\%d).json</pre></div>
+  </div>
+</section>
+
+<!-- ────── TROUBLESHOOTING ────── -->
+<section id="troubleshooting">
+  <h2>Troubleshooting</h2>
+
+  <details>
+    <summary>400: Invalid license key</summary>
+    <div class="details-body">
+      <p>The key format or checksum does not match. Common causes:</p>
+      <ul>
+        <li>Key was typed incorrectly (check for <code>O</code> vs <code>0</code>, <code>I</code> vs <code>1</code> confusion &mdash; these characters are excluded from valid keys)</li>
+        <li>The <code>KEY_SALT</code> on the server differs from when the key was generated. Keys generated with a different salt will not validate.</li>
+        <li>Key string was truncated during copy-paste</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>403: Max activations reached</summary>
+    <div class="details-body">
+      <p>The license key has been activated on the maximum number of machines. Solutions:</p>
+      <ul>
+        <li>Deactivate a machine using <code>POST /api/license/deactivate</code></li>
+        <li>Ask the admin to increase <code>maxMachines</code> via <code>PUT /api/keys/:id</code></li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>401: Missing or invalid authorization header</summary>
+    <div class="details-body">
+      <p>Admin API calls require the <code>Authorization</code> header:</p>
+      <ul>
+        <li>Ensure the header format is exactly: <code>Authorization: Bearer &lt;token&gt;</code> (note the space after "Bearer")</li>
+        <li>Token may have expired (24-hour validity). Re-authenticate via <code>POST /api/auth/login</code>.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>CORS errors in browser/Electron</summary>
+    <div class="details-body">
+      <p>The browser is blocking requests due to cross-origin policy:</p>
+      <ul>
+        <li>Check that <code>CORS_ORIGINS</code> includes your app's origin</li>
+        <li>For Electron apps, the origin is typically <code>app://&lt;app-name&gt;</code> or <code>file://</code></li>
+        <li>Set <code>CORS_ORIGINS=*</code> temporarily to confirm CORS is the issue</li>
+        <li>Ensure no typos in the origin URL (protocol, port, trailing slash)</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>CSP (Content Security Policy) blocking requests</summary>
+    <div class="details-body">
+      <p>If your Electron app has CSP enabled, it may block connections to the license server:</p>
+      <ul>
+        <li>Add the license server URL to the <code>connect-src</code> directive in your CSP meta tag</li>
+        <li>Example: <code>connect-src 'self' http://localhost:4000 https://license.yourdomain.com</code></li>
+        <li>Check the browser/Electron dev console for CSP violation messages</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Server unreachable / ECONNREFUSED</summary>
+    <div class="details-body">
+      <p>The license server is not responding:</p>
+      <ul>
+        <li>Verify the server is running: <code>curl http://localhost:4000/api/health</code></li>
+        <li>Check the configured port matches your client URL</li>
+        <li>Ensure firewall rules allow traffic on port 4000</li>
+        <li>In Docker: check container logs with <code>docker logs tlink-license</code></li>
+        <li>With PM2: check logs with <code>pm2 logs tlink-license</code></li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Key validation passes but activation fails</summary>
+    <div class="details-body">
+      <p>The key structure is valid but the database record check fails:</p>
+      <ul>
+        <li>The key may not exist in the database (was generated but never inserted)</li>
+        <li>The key status may be <code>revoked</code></li>
+        <li>The <code>appCode</code> in the request may not match the key's associated app</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Rate limit exceeded (429)</summary>
+    <div class="details-body">
+      <p>Too many requests from the same IP address. The server enforces:</p>
+      <ul>
+        <li>Public routes: 30 requests per minute</li>
+        <li>Admin routes: 100 requests per minute</li>
+        <li>Check <code>RateLimit-Remaining</code> header to monitor usage</li>
+        <li>Implement exponential backoff in your client</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<footer class="footer">
+  &copy; 2025 Tlink Technologies. All rights reserved. &mdash; Tlink License Server v1.0.0
+</footer>
+
+<!-- ═══════════════════════ JAVASCRIPT ═══════════════════════ -->
+<script>
+// ── Theme Toggle ──
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const html = document.documentElement;
+
+function setTheme(theme) {
+  html.setAttribute('data-theme', theme);
+  localStorage.setItem('tlink-docs-theme', theme);
+  themeIcon.innerHTML = theme === 'dark'
+    ? '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>'
+    : '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+}
+
+const savedTheme = localStorage.getItem('tlink-docs-theme') || 'light';
+setTheme(savedTheme);
+
+themeToggle.addEventListener('click', () => {
+  const current = html.getAttribute('data-theme');
+  setTheme(current === 'light' ? 'dark' : 'light');
+});
+
+// ── Copy to Clipboard ──
+function copyCode(btn) {
+  const codeBody = btn.closest('.code-block').querySelector('.code-body pre');
+  const text = codeBody.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ── Endpoint Toggle ──
+function toggleEndpoint(header) {
+  header.closest('.endpoint').classList.toggle('open');
+}
+
+// ── Active Sidebar Link ──
+const sidebarLinks = document.querySelectorAll('.sidebar-link');
+const sections = document.querySelectorAll('section[id]');
+
+function updateActiveLink() {
+  let current = '';
+  sections.forEach(section => {
+    const top = section.offsetTop - 100;
+    if (window.scrollY >= top) current = section.getAttribute('id');
+  });
+  sidebarLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+  });
+}
+
+window.addEventListener('scroll', updateActiveLink);
+updateActiveLink();
+
+// Close mobile sidebar on link click
+sidebarLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelector('.sidebar').classList.remove('open');
+  });
+});
+
+// ── Search ──
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+const searchIndex = [];
+document.querySelectorAll('section[id]').forEach(section => {
+  const id = section.id;
+  const headings = section.querySelectorAll('h1, h2, h3');
+  headings.forEach(h => {
+    searchIndex.push({
+      id,
+      title: h.textContent.trim(),
+      section: section.querySelector('h2, h1')?.textContent.trim() || '',
+      text: section.textContent.toLowerCase()
+    });
+  });
+});
+
+searchInput.addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  if (!query) {
+    searchResults.classList.remove('active');
+    return;
+  }
+
+  const matches = searchIndex.filter(item =>
+    item.title.toLowerCase().includes(query) || item.text.includes(query)
+  );
+
+  const unique = [];
+  const seen = new Set();
+  matches.forEach(m => {
+    if (!seen.has(m.id)) {
+      seen.add(m.id);
+      unique.push(m);
+    }
+  });
+
+  if (unique.length === 0) {
+    searchResults.innerHTML = '<div class="search-result-item"><span class="sr-title">No results found</span></div>';
+  } else {
+    searchResults.innerHTML = unique.slice(0, 10).map(m =>
+      `<div class="search-result-item" onclick="navigateTo('${m.id}')">
+        <div class="sr-title">${m.title}</div>
+        <div class="sr-section">${m.section}</div>
+      </div>`
+    ).join('');
+  }
+  searchResults.classList.add('active');
+});
+
+searchInput.addEventListener('blur', () => {
+  setTimeout(() => searchResults.classList.remove('active'), 200);
+});
+
+function navigateTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  searchInput.value = '';
+  searchResults.classList.remove('active');
+}
+
+// Keyboard shortcut: / to focus search
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== searchInput) {
+    e.preventDefault();
+    searchInput.focus();
+  }
+  if (e.key === 'Escape') {
+    searchInput.blur();
+    searchResults.classList.remove('active');
+  }
+});
+
+// ── Try It: Activate ──
+async function tryActivate() {
+  const baseUrl = document.getElementById('try-activate-url').value.replace(/\/$/, '');
+  const key = document.getElementById('try-activate-key').value;
+  const machineId = document.getElementById('try-activate-machine').value;
+  const responseDiv = document.getElementById('try-activate-response');
+
+  if (!key || !machineId) {
+    responseDiv.innerHTML = '<div class="code-block"><div class="code-header"><span class="lang">error</span></div><div class="code-body"><pre style="color:#f38ba8;">Please fill in both License Key and Machine ID fields.</pre></div></div>';
+    responseDiv.classList.add('active');
+    return;
+  }
+
+  responseDiv.innerHTML = '<p style="color:var(--text-muted);">Sending request...</p>';
+  responseDiv.classList.add('active');
+
+  try {
+    const res = await fetch(baseUrl + '/api/license/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, machineId })
+    });
+    const data = await res.json();
+    responseDiv.innerHTML = `<div class="code-block"><div class="code-header"><span class="lang">response ${res.status}</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><div class="code-body"><pre>${JSON.stringify(data, null, 2)}</pre></div></div>`;
+  } catch (err) {
+    responseDiv.innerHTML = `<div class="code-block"><div class="code-header"><span class="lang">error</span></div><div class="code-body"><pre style="color:#f38ba8;">Request failed: ${err.message}\n\nMake sure the license server is running at ${baseUrl}</pre></div></div>`;
+  }
+}
+</script>
+
+</body>
+</html>
