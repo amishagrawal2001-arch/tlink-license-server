@@ -782,6 +782,167 @@ li {
   align-items: center;
   justify-content: center;
 }
+
+/* ── Quick Start Card ── */
+.quickstart-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 8%, transparent), color-mix(in srgb, var(--primary) 3%, transparent));
+  border: 2px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  border-radius: 14px;
+  padding: 28px 32px;
+  margin-bottom: 40px;
+}
+.quickstart-card h2 {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 8px;
+  font-size: 22px;
+}
+.quickstart-card .qs-subtitle {
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+.quickstart-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.qs-step {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  transition: border-color .2s, box-shadow .2s;
+}
+.qs-step:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+.qs-step .qs-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.qs-step .qs-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.qs-step .qs-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.qs-step code {
+  font-size: 11px;
+}
+
+/* ── Flow Diagram ── */
+.flow-diagram {
+  padding: 24px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+.flow-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.flow-row:last-child { margin-bottom: 0; }
+.flow-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.flow-box.user { background: color-mix(in srgb, var(--info) 12%, transparent); color: var(--info); border: 1px solid color-mix(in srgb, var(--info) 25%, transparent); }
+.flow-box.server { background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 25%, transparent); }
+.flow-box.admin { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent); }
+.flow-box.warning { background: color-mix(in srgb, var(--warning) 12%, transparent); color: var(--warning); border: 1px solid color-mix(in srgb, var(--warning) 25%, transparent); }
+.flow-box.danger { background: color-mix(in srgb, var(--error) 12%, transparent); color: var(--error); border: 1px solid color-mix(in srgb, var(--error) 25%, transparent); }
+.flow-arrow {
+  color: var(--text-light);
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.flow-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-left: 4px;
+}
+
+/* ── State Table ── */
+.state-table td.yes { color: var(--success); font-weight: 700; }
+.state-table td.no { color: var(--error); font-weight: 700; }
+
+/* ── Install Tabs ── */
+.install-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 0;
+}
+.install-tab {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .2s, border-color .2s;
+}
+.install-tab:hover { color: var(--primary); }
+.install-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.install-panel {
+  display: none;
+  padding: 20px 0;
+}
+.install-panel.active { display: block; }
+
+/* ── Architecture Diagram (Multi-App) ── */
+.arch-diagram {
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 28px;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 16px 0;
+  white-space: pre;
+}
+.arch-diagram .d-app { color: #89b4fa; }
+.arch-diagram .d-server { color: #a6e3a1; }
+.arch-diagram .d-db { color: #fab387; }
+.arch-diagram .d-arrow { color: #6c7086; }
+.arch-diagram .d-label { color: #cba6f7; }
 </style>
 </head>
 <body>
@@ -818,8 +979,15 @@ li {
     <div class="sidebar-heading">Getting Started</div>
     <a href="#overview" class="sidebar-link">Overview</a>
     <a href="#quick-start" class="sidebar-link">Quick Start</a>
+    <a href="#how-it-works" class="sidebar-link">How It Works</a>
     <a href="#architecture" class="sidebar-link">Architecture</a>
     <a href="#tech-stack" class="sidebar-link">Tech Stack</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Installation</div>
+    <a href="#installation" class="sidebar-link">Installation Guide</a>
+    <a href="#service-management" class="sidebar-link">Service Management</a>
   </div>
 
   <div class="sidebar-section">
@@ -864,14 +1032,40 @@ li {
     <div class="sidebar-heading">Guides</div>
     <a href="#key-format" class="sidebar-link">Key Format</a>
     <a href="#client-integration" class="sidebar-link">Client Integration</a>
+    <a href="#license-states" class="sidebar-link">License States</a>
+    <a href="#admin-workflow" class="sidebar-link">Admin Workflow</a>
     <a href="#admin-dashboard" class="sidebar-link">Admin Dashboard</a>
-    <a href="#deployment" class="sidebar-link">Deployment</a>
+    <a href="#multi-app" class="sidebar-link">Multi-App Architecture</a>
+    <a href="#deployment" class="sidebar-link">Production Deployment</a>
     <a href="#troubleshooting" class="sidebar-link">Troubleshooting</a>
   </div>
 </nav>
 
 <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
 <main class="content" id="mainContent">
+
+<!-- ────── QUICK START CARD ────── -->
+<div class="quickstart-card">
+  <h2>Get Started in 3 Steps</h2>
+  <p class="qs-subtitle">Go from zero to a fully licensed application in minutes.</p>
+  <div class="quickstart-steps">
+    <div class="qs-step">
+      <div class="qs-num">1</div>
+      <div class="qs-title">Install the Server</div>
+      <div class="qs-desc">Download a release or run from source.<br><code>npm install &amp;&amp; npm start</code></div>
+    </div>
+    <div class="qs-step">
+      <div class="qs-num">2</div>
+      <div class="qs-title">Generate a Key</div>
+      <div class="qs-desc">Use the admin dashboard or API.<br><code>POST /api/keys</code></div>
+    </div>
+    <div class="qs-step">
+      <div class="qs-num">3</div>
+      <div class="qs-title">Activate in Your App</div>
+      <div class="qs-desc">Call the activation endpoint.<br><code>POST /api/license/activate</code></div>
+    </div>
+  </div>
+</div>
 
 <!-- ────── GETTING STARTED ────── -->
 <section id="overview">
@@ -937,6 +1131,86 @@ npm start</pre></div>
   </ol>
 </section>
 
+<section id="how-it-works">
+  <h2>How It Works</h2>
+  <p>The license system follows a straightforward flow from download through ongoing validation. Below are the key workflows visualized end-to-end.</p>
+
+  <h3>End-to-End License Lifecycle</h3>
+  <div class="flow-diagram">
+    <p style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--text);">Trial &amp; Activation Flow</p>
+    <div class="flow-row">
+      <span class="flow-box user">Customer Downloads App</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box warning">14-Day Trial Starts</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box danger">Trial Expires</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box user">Must Activate License</span>
+    </div>
+    <p style="font-weight:700;font-size:14px;margin:18px 0 14px;color:var(--text);">Key Generation Flow</p>
+    <div class="flow-row">
+      <span class="flow-box admin">Admin Opens Dashboard</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box admin">Generates License Key</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box admin">Sends Key to Customer</span>
+      <span class="flow-label">(email, Slack, etc.)</span>
+    </div>
+    <p style="font-weight:700;font-size:14px;margin:18px 0 14px;color:var(--text);">Activation Flow</p>
+    <div class="flow-row">
+      <span class="flow-box user">Customer Enters Key</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box user">App Calls /api/license/activate</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">Server Validates Key</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">Returns tier, expiry</span>
+    </div>
+    <p style="font-weight:700;font-size:14px;margin:18px 0 14px;color:var(--text);">Ongoing Heartbeat (every 4 hours)</p>
+    <div class="flow-row">
+      <span class="flow-box user">App Sends Heartbeat</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">Server Checks Key Status</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">Returns { valid: true/false }</span>
+    </div>
+    <p style="font-weight:700;font-size:14px;margin:18px 0 14px;color:var(--text);">Revocation Flow</p>
+    <div class="flow-row">
+      <span class="flow-box admin">Admin Revokes Key</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">Status Set to "revoked"</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box danger">Next Heartbeat Fails</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box danger">App Shows Expired Dialog</span>
+    </div>
+  </div>
+
+  <h3>Architecture Overview (Text Diagram)</h3>
+  <div class="ascii-art">
+Customer Machine                    Your Server                        Admin
++-----------------+     HTTPS      +----------------------+      +----------------+
+| Your App        |&lt;--------------&gt;| Tlink License Server |&lt;----&gt;| Admin Dashboard |
+| (Electron/Web)  |                | (Express.js :4000)   |      | (/admin)       |
++-----------------+                +----------------------+      +----------------+
+       |                                  |
+       | POST /api/license/activate       | JSON Database
+       | POST /api/license/validate       | (data/licenses.json)
+       | POST /api/license/heartbeat      |
+       | POST /api/license/deactivate     |
+       |                                  |
+  [localStorage]                    [Middleware]
+  - license_key                     - Helmet (CSP)
+  - license_tier                    - CORS
+  - license_expiry                  - Rate Limiting
+  - last_validated_at               - JWT Auth (admin)</div>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div><strong>Offline Graceful Degradation:</strong> If the server is unreachable, the client uses locally cached license data with a 7-day grace period. After 7 days without server contact, the license is treated as invalid.</div>
+  </div>
+</section>
+
 <section id="architecture">
   <h2>Architecture</h2>
   <div class="ascii-art">
@@ -989,6 +1263,203 @@ npm start</pre></div>
       <tr><td>Tests</td><td><code>jest 29.x</code></td><td>Unit and integration testing</td></tr>
     </tbody>
   </table>
+</section>
+
+<!-- ────── INSTALLATION GUIDE ────── -->
+<section id="installation">
+  <h2>Installation Guide</h2>
+  <p>Multiple installation methods are available. Choose the one that fits your infrastructure.</p>
+
+  <div class="install-tabs" id="installTabs">
+    <button class="install-tab active" onclick="switchInstallTab('release')">From Releases</button>
+    <button class="install-tab" onclick="switchInstallTab('source')">From Source</button>
+    <button class="install-tab" onclick="switchInstallTab('docker')">Docker</button>
+  </div>
+
+  <div class="install-panel active" id="panel-release">
+    <h3>Install from GitHub Releases (Recommended)</h3>
+    <p>Download the latest release archive for your platform from the <a href="#">GitHub Releases page</a>.</p>
+
+    <h4>macOS</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="tok-cmt"># Download the release</span>
+curl -LO https://github.com/tlink/license-server/releases/latest/download/tlink-license-server-macos.tar.gz
+
+<span class="tok-cmt"># Extract</span>
+tar xzf tlink-license-server-macos.tar.gz
+cd tlink-license-server
+
+<span class="tok-cmt"># Run the installer</span>
+sudo bash install-mac.sh</pre></div>
+    </div>
+    <p>The installer creates a LaunchDaemon at <code>/Library/LaunchDaemons/io.tlink.license-server.plist</code> and starts the service automatically.</p>
+
+    <h4>Linux (Ubuntu / Debian / RHEL)</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="tok-cmt"># Download the release</span>
+curl -LO https://github.com/tlink/license-server/releases/latest/download/tlink-license-server-linux.tar.gz
+
+<span class="tok-cmt"># Extract</span>
+tar xzf tlink-license-server-linux.tar.gz
+cd tlink-license-server
+
+<span class="tok-cmt"># Run the installer (creates systemd service)</span>
+sudo bash install-linux.sh</pre></div>
+    </div>
+
+    <h4>Windows</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang">powershell</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="tok-cmt"># Download and extract the zip</span>
+Invoke-WebRequest -Uri "https://github.com/tlink/license-server/releases/latest/download/tlink-license-server-win.zip" -OutFile tlink-license-server.zip
+Expand-Archive tlink-license-server.zip -DestinationPath C:\tlink-license-server
+
+<span class="tok-cmt"># Run the installer as Administrator</span>
+cd C:\tlink-license-server
+.\install-win.bat</pre></div>
+    </div>
+  </div>
+
+  <div class="install-panel" id="panel-source">
+    <h3>Install from Source</h3>
+    <p>Requires <strong>Node.js 18+</strong> and <strong>npm</strong>.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="tok-cmt"># Clone the repository</span>
+git clone https://github.com/tlink/license-server.git tlink-license-server
+cd tlink-license-server
+
+<span class="tok-cmt"># Install dependencies</span>
+npm install
+
+<span class="tok-cmt"># Configure environment</span>
+cp .env.example .env
+<span class="tok-cmt"># Edit .env with your production settings (see Configuration)</span>
+
+<span class="tok-cmt"># Seed the database (creates admin user + sample data)</span>
+npm run seed
+
+<span class="tok-cmt"># Start in development mode (auto-reload)</span>
+npm run dev
+
+<span class="tok-cmt"># Or start in production mode</span>
+npm start</pre></div>
+    </div>
+
+    <div class="info-box note">
+      <span class="icon">&#9432;</span>
+      <div>The development server uses <code>nodemon</code> for auto-restart on file changes. Production mode runs directly with <code>node</code>.</div>
+    </div>
+  </div>
+
+  <div class="install-panel" id="panel-docker">
+    <h3>Docker Installation</h3>
+
+    <h4>Using Docker Compose (recommended)</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang">yaml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="tok-cmt"># docker-compose.yml</span>
+<span class="tok-key">version</span>: <span class="tok-str">'3.8'</span>
+<span class="tok-key">services</span>:
+  <span class="tok-key">license-server</span>:
+    <span class="tok-key">image</span>: <span class="tok-str">tlink/license-server:latest</span>
+    <span class="tok-key">ports</span>:
+      - <span class="tok-str">"4000:4000"</span>
+    <span class="tok-key">volumes</span>:
+      - <span class="tok-str">license-data:/app/data</span>
+    <span class="tok-key">environment</span>:
+      - <span class="tok-str">JWT_SECRET=your-production-secret</span>
+      - <span class="tok-str">KEY_SALT=your-production-salt</span>
+      - <span class="tok-str">ADMIN_PASSWORD=strong-password-here</span>
+      - <span class="tok-str">CORS_ORIGINS=https://yourdomain.com,app://tlink-netops</span>
+    <span class="tok-key">restart</span>: <span class="tok-str">unless-stopped</span>
+
+<span class="tok-key">volumes</span>:
+  <span class="tok-key">license-data</span>:</pre></div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="tok-cmt"># Pull and start</span>
+docker-compose up -d
+
+<span class="tok-cmt"># View logs</span>
+docker-compose logs -f license-server
+
+<span class="tok-cmt"># Seed database (first time only)</span>
+docker-compose exec license-server npm run seed</pre></div>
+    </div>
+
+    <h4>Using Docker directly</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre>docker pull tlink/license-server:latest
+
+docker run -d \
+  --name tlink-license \
+  -p <span class="tok-num">4000</span>:<span class="tok-num">4000</span> \
+  -v tlink-data:/app/data \
+  -e JWT_SECRET=<span class="tok-str">"your-production-secret"</span> \
+  -e KEY_SALT=<span class="tok-str">"your-production-salt"</span> \
+  -e ADMIN_PASSWORD=<span class="tok-str">"strong-password-here"</span> \
+  tlink/license-server:latest</pre></div>
+    </div>
+  </div>
+</section>
+
+<section id="service-management">
+  <h3>Service Management</h3>
+  <p>Once installed as a system service, use these commands to manage the license server.</p>
+
+  <h4>macOS (launchctl)</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Start the service</span>
+sudo launchctl load /Library/LaunchDaemons/io.tlink.license-server.plist
+
+<span class="tok-cmt"># Stop the service</span>
+sudo launchctl unload /Library/LaunchDaemons/io.tlink.license-server.plist
+
+<span class="tok-cmt"># Check status</span>
+sudo launchctl list | grep tlink
+
+<span class="tok-cmt"># View logs</span>
+tail -f /var/log/tlink-license-server.log</pre></div>
+  </div>
+
+  <h4>Linux (systemctl)</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Start / stop / restart</span>
+sudo systemctl start tlink-license-server
+sudo systemctl stop tlink-license-server
+sudo systemctl restart tlink-license-server
+
+<span class="tok-cmt"># Enable on boot</span>
+sudo systemctl enable tlink-license-server
+
+<span class="tok-cmt"># Check status</span>
+sudo systemctl status tlink-license-server
+
+<span class="tok-cmt"># View logs</span>
+journalctl -u tlink-license-server -f</pre></div>
+  </div>
+
+  <h4>Windows (sc.exe)</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">powershell</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Start / stop</span>
+sc.exe start TlinkLicenseServer
+sc.exe stop TlinkLicenseServer
+
+<span class="tok-cmt"># Check status</span>
+sc.exe query TlinkLicenseServer
+
+<span class="tok-cmt"># Set to auto-start</span>
+sc.exe config TlinkLicenseServer start=auto</pre></div>
+  </div>
 </section>
 
 <!-- ────── CONFIGURATION ────── -->
@@ -1903,128 +2374,440 @@ curl -X POST http://localhost:4000/api/auth/login \
 
 <!-- ────── CLIENT INTEGRATION ────── -->
 <section id="client-integration">
-  <h2>Client Integration</h2>
-  <p>Guide for integrating Tlink license validation into Electron/Angular desktop applications.</p>
+  <h2>Client Integration Guide</h2>
+  <p>Complete guide for integrating <strong>any</strong> application (Electron, web, desktop) with the Tlink License Server. Follow these five steps to add full license management to your app.</p>
 
-  <h3>License Activation on First Launch</h3>
+  <h3>Step 1: Register Your App</h3>
+  <p>Before generating keys, register your application with the license server. Each app gets a unique 2-letter code.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># First, get an admin token</span>
+TOKEN=$(curl -s -X POST https://your-server:4000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"your-password"}' | jq -r .token)
+
+<span class="tok-cmt"># Register your application</span>
+curl -X POST https://your-server:4000/api/keys/apps/register \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "appCode": "MA",
+    "appName": "My Awesome App"
+  }'
+
+<span class="tok-cmt"># Response: { "id": 2, "appCode": "MA", "appName": "My Awesome App" }</span></pre></div>
+  </div>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div><strong>App codes</strong> are uppercase, 2 characters max. They are embedded in every license key (e.g., <code>TLINK-MA-...</code>) so the server can verify a key belongs to the correct application.</div>
+  </div>
+
+  <h3>Step 2: Add License Service to Your App</h3>
+  <p>Create a <code>LicenseService</code> class that handles all license operations. This example works in TypeScript/JavaScript for Electron or browser apps.</p>
+
   <div class="code-block">
     <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-    <div class="code-body"><pre><span class="tok-kw">interface</span> LicenseResponse {
+    <div class="code-body"><pre><span class="tok-cmt">// license.service.ts - Complete License Service</span>
+
+<span class="tok-kw">interface</span> LicenseData {
+  key: <span class="tok-kw">string</span>;
+  tier: <span class="tok-str">'pro'</span> | <span class="tok-str">'enterprise'</span>;
+  expiry: <span class="tok-kw">string</span>;
+  customer: <span class="tok-kw">string</span>;
+  activatedAt: <span class="tok-kw">string</span>;
+  lastValidatedAt: <span class="tok-kw">string</span>;
+}
+
+<span class="tok-kw">interface</span> LicenseResponse {
   valid: <span class="tok-kw">boolean</span>;
   tier?: <span class="tok-str">'pro'</span> | <span class="tok-str">'enterprise'</span>;
   expiry?: <span class="tok-kw">string</span>;
   customer?: <span class="tok-kw">string</span>;
   message?: <span class="tok-kw">string</span>;
+  reason?: <span class="tok-kw">string</span>;
+  daysRemaining?: <span class="tok-kw">number</span>;
 }
 
-<span class="tok-kw">async function</span> activateLicense(key: <span class="tok-kw">string</span>): Promise&lt;LicenseResponse&gt; {
-  <span class="tok-kw">const</span> machineId = getMachineFingerprint(); <span class="tok-cmt">// Your machine ID logic</span>
+<span class="tok-kw">export class</span> LicenseService {
+  <span class="tok-kw">private</span> SERVER_URL = <span class="tok-str">'https://license.yourdomain.com'</span>;
+  <span class="tok-kw">private</span> APP_CODE = <span class="tok-str">'MA'</span>;           <span class="tok-cmt">// Your registered app code</span>
+  <span class="tok-kw">private</span> APP_VERSION = <span class="tok-str">'1.0.0'</span>;
+  <span class="tok-kw">private</span> GRACE_DAYS = <span class="tok-num">7</span>;
+  <span class="tok-kw">private</span> HEARTBEAT_MS = <span class="tok-num">4</span> * <span class="tok-num">60</span> * <span class="tok-num">60</span> * <span class="tok-num">1000</span>;  <span class="tok-cmt">// 4 hours</span>
+  <span class="tok-kw">private</span> heartbeatTimer: <span class="tok-kw">any</span> = <span class="tok-kw">null</span>;
 
-  <span class="tok-kw">const</span> response = <span class="tok-kw">await</span> fetch(<span class="tok-str">'http://your-server:4000/api/license/activate'</span>, {
-    method: <span class="tok-str">'POST'</span>,
-    headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
-    body: JSON.stringify({
-      key,
-      machineId,
-      appCode: <span class="tok-str">'NO'</span>,
-      appVersion: <span class="tok-str">'1.0.0'</span>,
-      os: process.platform
-    })
-  });
-
-  <span class="tok-kw">return</span> response.json();
-}</pre></div>
-  </div>
-
-  <h3>Validate on Startup</h3>
-  <div class="code-block">
-    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-    <div class="code-body"><pre><span class="tok-kw">async function</span> validateOnStartup(savedKey: <span class="tok-kw">string</span>): Promise&lt;<span class="tok-kw">boolean</span>&gt; {
-  <span class="tok-kw">try</span> {
-    <span class="tok-kw">const</span> response = <span class="tok-kw">await</span> fetch(<span class="tok-str">'http://your-server:4000/api/license/validate'</span>, {
+  <span class="tok-cmt">// ── Activate a license key ──</span>
+  <span class="tok-kw">async</span> activate(key: <span class="tok-kw">string</span>): Promise&lt;LicenseResponse&gt; {
+    <span class="tok-kw">const</span> res = <span class="tok-kw">await</span> fetch(<span class="tok-str">`${this.SERVER_URL}/api/license/activate`</span>, {
       method: <span class="tok-str">'POST'</span>,
       headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
       body: JSON.stringify({
-        key: savedKey,
-        machineId: getMachineFingerprint()
+        key,
+        machineId: <span class="tok-kw">this</span>.getMachineId(),
+        appCode: <span class="tok-kw">this</span>.APP_CODE,
+        appVersion: <span class="tok-kw">this</span>.APP_VERSION,
+        os: <span class="tok-kw">this</span>.getOS()
       })
     });
 
-    <span class="tok-kw">const</span> data = <span class="tok-kw">await</span> response.json();
+    <span class="tok-kw">const</span> data: LicenseResponse = <span class="tok-kw">await</span> res.json();
 
     <span class="tok-kw">if</span> (data.valid) {
-      <span class="tok-cmt">// Store tier info for feature gating</span>
-      localStorage.setItem(<span class="tok-str">'license_tier'</span>, data.tier);
-      localStorage.setItem(<span class="tok-str">'license_expiry'</span>, data.expiry);
-      <span class="tok-kw">return true</span>;
+      <span class="tok-kw">this</span>.saveLicense({
+        key,
+        tier: data.tier!,
+        expiry: data.expiry!,
+        customer: data.customer || <span class="tok-str">''</span>,
+        activatedAt: <span class="tok-kw">new</span> Date().toISOString(),
+        lastValidatedAt: <span class="tok-kw">new</span> Date().toISOString()
+      });
+      <span class="tok-kw">this</span>.startHeartbeat();
     }
 
-    <span class="tok-cmt">// License invalid - show activation screen</span>
-    <span class="tok-kw">return false</span>;
-  } <span class="tok-kw">catch</span> (err) {
-    <span class="tok-cmt">// Network error - use offline fallback</span>
-    <span class="tok-kw">return</span> checkOfflineLicense(savedKey);
+    <span class="tok-kw">return</span> data;
+  }
+
+  <span class="tok-cmt">// ── Validate on startup ──</span>
+  <span class="tok-kw">async</span> validate(): Promise&lt;LicenseResponse&gt; {
+    <span class="tok-kw">const</span> saved = <span class="tok-kw">this</span>.getSavedLicense();
+    <span class="tok-kw">if</span> (!saved) <span class="tok-kw">return</span> { valid: <span class="tok-kw">false</span>, reason: <span class="tok-str">'No license found'</span> };
+
+    <span class="tok-kw">try</span> {
+      <span class="tok-kw">const</span> res = <span class="tok-kw">await</span> fetch(<span class="tok-str">`${this.SERVER_URL}/api/license/validate`</span>, {
+        method: <span class="tok-str">'POST'</span>,
+        headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
+        body: JSON.stringify({
+          key: saved.key,
+          machineId: <span class="tok-kw">this</span>.getMachineId()
+        })
+      });
+
+      <span class="tok-kw">const</span> data: LicenseResponse = <span class="tok-kw">await</span> res.json();
+
+      <span class="tok-kw">if</span> (data.valid) {
+        saved.lastValidatedAt = <span class="tok-kw">new</span> Date().toISOString();
+        saved.tier = data.tier!;
+        saved.expiry = data.expiry!;
+        <span class="tok-kw">this</span>.saveLicense(saved);
+        <span class="tok-kw">this</span>.startHeartbeat();
+      }
+
+      <span class="tok-kw">return</span> data;
+    } <span class="tok-kw">catch</span> (err) {
+      <span class="tok-cmt">// Offline fallback</span>
+      <span class="tok-kw">return this</span>.checkOffline(saved);
+    }
+  }
+
+  <span class="tok-cmt">// ── Heartbeat (called every 4 hours) ──</span>
+  <span class="tok-kw">async</span> heartbeat(): Promise&lt;<span class="tok-kw">boolean</span>&gt; {
+    <span class="tok-kw">const</span> saved = <span class="tok-kw">this</span>.getSavedLicense();
+    <span class="tok-kw">if</span> (!saved) <span class="tok-kw">return false</span>;
+
+    <span class="tok-kw">try</span> {
+      <span class="tok-kw">const</span> res = <span class="tok-kw">await</span> fetch(<span class="tok-str">`${this.SERVER_URL}/api/license/heartbeat`</span>, {
+        method: <span class="tok-str">'POST'</span>,
+        headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
+        body: JSON.stringify({
+          key: saved.key,
+          machineId: <span class="tok-kw">this</span>.getMachineId()
+        })
+      });
+
+      <span class="tok-kw">const</span> data = <span class="tok-kw">await</span> res.json();
+
+      <span class="tok-kw">if</span> (data.valid) {
+        saved.lastValidatedAt = <span class="tok-kw">new</span> Date().toISOString();
+        <span class="tok-kw">this</span>.saveLicense(saved);
+      }
+
+      <span class="tok-kw">return</span> data.valid;
+    } <span class="tok-kw">catch</span> (err) {
+      console.warn(<span class="tok-str">'Heartbeat failed, will retry next interval'</span>);
+      <span class="tok-kw">return true</span>; <span class="tok-cmt">// Allow during grace period</span>
+    }
+  }
+
+  <span class="tok-cmt">// ── Offline fallback logic ──</span>
+  <span class="tok-kw">private</span> checkOffline(saved: LicenseData): LicenseResponse {
+    <span class="tok-kw">const</span> daysSince = (Date.now() - <span class="tok-kw">new</span> Date(saved.lastValidatedAt).getTime())
+      / (<span class="tok-num">1000</span> * <span class="tok-num">60</span> * <span class="tok-num">60</span> * <span class="tok-num">24</span>);
+    <span class="tok-kw">const</span> notExpired = <span class="tok-kw">new</span> Date() &lt; <span class="tok-kw">new</span> Date(saved.expiry);
+    <span class="tok-kw">const</span> inGrace = daysSince &lt; <span class="tok-kw">this</span>.GRACE_DAYS;
+
+    <span class="tok-kw">if</span> (notExpired &amp;&amp; inGrace) {
+      <span class="tok-kw">return</span> { valid: <span class="tok-kw">true</span>, tier: saved.tier, expiry: saved.expiry };
+    }
+    <span class="tok-kw">return</span> { valid: <span class="tok-kw">false</span>, reason: <span class="tok-str">'Offline grace period expired'</span> };
+  }
+
+  <span class="tok-cmt">// ── Persistence helpers ──</span>
+  <span class="tok-kw">private</span> saveLicense(data: LicenseData) {
+    localStorage.setItem(<span class="tok-str">'tlink_license'</span>, JSON.stringify(data));
+  }
+
+  getSavedLicense(): LicenseData | <span class="tok-kw">null</span> {
+    <span class="tok-kw">const</span> raw = localStorage.getItem(<span class="tok-str">'tlink_license'</span>);
+    <span class="tok-kw">return</span> raw ? JSON.parse(raw) : <span class="tok-kw">null</span>;
+  }
+
+  <span class="tok-kw">private</span> startHeartbeat() {
+    <span class="tok-kw">if</span> (<span class="tok-kw">this</span>.heartbeatTimer) clearInterval(<span class="tok-kw">this</span>.heartbeatTimer);
+    <span class="tok-kw">this</span>.heartbeatTimer = setInterval(() =&gt; <span class="tok-kw">this</span>.heartbeat(), <span class="tok-kw">this</span>.HEARTBEAT_MS);
+  }
+
+  <span class="tok-cmt">// ── Platform helpers ──</span>
+  <span class="tok-kw">private</span> getMachineId(): <span class="tok-kw">string</span> {
+    <span class="tok-cmt">// Generate or retrieve a persistent machine identifier</span>
+    <span class="tok-kw">let</span> id = localStorage.getItem(<span class="tok-str">'tlink_machine_id'</span>);
+    <span class="tok-kw">if</span> (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(<span class="tok-str">'tlink_machine_id'</span>, id);
+    }
+    <span class="tok-kw">return</span> id;
+  }
+
+  <span class="tok-kw">private</span> getOS(): <span class="tok-kw">string</span> {
+    <span class="tok-kw">if</span> (<span class="tok-kw">typeof</span> process !== <span class="tok-str">'undefined'</span>) <span class="tok-kw">return</span> process.platform;
+    <span class="tok-kw">return</span> navigator.platform || <span class="tok-str">'browser'</span>;
   }
 }</pre></div>
   </div>
 
-  <h3>Heartbeat Setup</h3>
+  <h3>Step 3: Add License UI</h3>
+  <p>Your app needs three UI elements: a trial banner, an activation dialog, and an optional admin panel.</p>
+
+  <h4>Trial Banner</h4>
   <div class="code-block">
-    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-    <div class="code-body"><pre><span class="tok-kw">const</span> HEARTBEAT_INTERVAL = <span class="tok-num">4</span> * <span class="tok-num">60</span> * <span class="tok-num">60</span> * <span class="tok-num">1000</span>; <span class="tok-cmt">// 4 hours</span>
+    <div class="code-header"><span class="lang">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt">&lt;!-- Trial banner - shows at top of app --&gt;</span>
+&lt;div id=<span class="tok-str">"license-banner"</span> style=<span class="tok-str">"
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+"</span>&gt;
+  &lt;span id=<span class="tok-str">"banner-text"</span>&gt;Trial: 14 days remaining&lt;/span&gt;
+  &lt;button onclick=<span class="tok-str">"showActivationDialog()"</span>&gt;Activate License&lt;/button&gt;
+&lt;/div&gt;
 
-<span class="tok-kw">function</span> startHeartbeat(key: <span class="tok-kw">string</span>) {
-  <span class="tok-kw">const</span> machineId = getMachineFingerprint();
+&lt;script&gt;
+<span class="tok-kw">function</span> updateBanner(state, daysLeft, tier) {
+  <span class="tok-kw">const</span> banner = document.getElementById(<span class="tok-str">'license-banner'</span>);
+  <span class="tok-kw">const</span> text = document.getElementById(<span class="tok-str">'banner-text'</span>);
 
-  setInterval(<span class="tok-kw">async</span> () =&gt; {
-    <span class="tok-kw">try</span> {
-      <span class="tok-kw">const</span> res = <span class="tok-kw">await</span> fetch(<span class="tok-str">'http://your-server:4000/api/license/heartbeat'</span>, {
-        method: <span class="tok-str">'POST'</span>,
-        headers: { <span class="tok-str">'Content-Type'</span>: <span class="tok-str">'application/json'</span> },
-        body: JSON.stringify({ key, machineId })
-      });
-      <span class="tok-kw">const</span> data = <span class="tok-kw">await</span> res.json();
+  <span class="tok-kw">const</span> styles = {
+    trial:   { bg: <span class="tok-str">'#fef3c7'</span>, color: <span class="tok-str">'#92400e'</span>, msg: <span class="tok-str">`Trial: ${daysLeft} days remaining`</span> },
+    pro:     { bg: <span class="tok-str">'#dbeafe'</span>, color: <span class="tok-str">'#1e40af'</span>, msg: <span class="tok-str">'Licensed: Pro Edition'</span> },
+    enterprise: { bg: <span class="tok-str">'#ede9fe'</span>, color: <span class="tok-str">'#5b21b6'</span>, msg: <span class="tok-str">'Licensed: Enterprise Edition'</span> },
+    expired: { bg: <span class="tok-str">'#fee2e2'</span>, color: <span class="tok-str">'#991b1b'</span>, msg: <span class="tok-str">'License Expired'</span> }
+  };
 
-      <span class="tok-kw">if</span> (!data.valid) {
-        <span class="tok-cmt">// License expired or revoked</span>
-        showLicenseExpiredDialog();
-      }
-    } <span class="tok-kw">catch</span> (err) {
-      <span class="tok-cmt">// Server unreachable - continue with grace period</span>
-      console.warn(<span class="tok-str">'Heartbeat failed, will retry next interval'</span>);
-    }
-  }, HEARTBEAT_INTERVAL);
-}</pre></div>
+  <span class="tok-kw">const</span> s = styles[state] || styles.expired;
+  banner.style.background = s.bg;
+  banner.style.color = s.color;
+  text.textContent = s.msg;
+}
+&lt;/script&gt;</pre></div>
   </div>
 
-  <h3>Offline Fallback</h3>
-  <p>When the license server is unreachable, implement a grace period using locally cached license data:</p>
+  <h4>Activation Dialog</h4>
   <div class="code-block">
-    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-    <div class="code-body"><pre><span class="tok-kw">function</span> checkOfflineLicense(key: <span class="tok-kw">string</span>): <span class="tok-kw">boolean</span> {
-  <span class="tok-kw">const</span> lastValidated = localStorage.getItem(<span class="tok-str">'last_validated_at'</span>);
-  <span class="tok-kw">const</span> expiry = localStorage.getItem(<span class="tok-str">'license_expiry'</span>);
-  <span class="tok-kw">const</span> GRACE_DAYS = <span class="tok-num">7</span>;
-
-  <span class="tok-kw">if</span> (!lastValidated || !expiry) <span class="tok-kw">return false</span>;
-
-  <span class="tok-kw">const</span> daysSinceValidation = (Date.now() - <span class="tok-kw">new</span> Date(lastValidated).getTime())
-    / (<span class="tok-num">1000</span> * <span class="tok-num">60</span> * <span class="tok-num">60</span> * <span class="tok-num">24</span>);
-  <span class="tok-kw">const</span> notExpired = <span class="tok-kw">new</span> Date() &lt; <span class="tok-kw">new</span> Date(expiry);
-
-  <span class="tok-kw">return</span> notExpired &amp;&amp; daysSinceValidation &lt; GRACE_DAYS;
-}</pre></div>
+    <div class="code-header"><span class="lang">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt">&lt;!-- Activation dialog overlay --&gt;</span>
+&lt;div id=<span class="tok-str">"activation-dialog"</span> style=<span class="tok-str">"
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.5); z-index:9999;
+  display:flex; align-items:center; justify-content:center;
+"</span>&gt;
+  &lt;div style=<span class="tok-str">"background:#fff; padding:32px; border-radius:12px;
+    max-width:420px; width:100%;"</span>&gt;
+    &lt;h3&gt;Activate License&lt;/h3&gt;
+    &lt;p&gt;Enter your license key to unlock full features.&lt;/p&gt;
+    &lt;input type=<span class="tok-str">"text"</span> id=<span class="tok-str">"license-key-input"</span>
+      placeholder=<span class="tok-str">"TLINK-XX-XXXX-XXXX-XXXX-XXXX"</span>
+      style=<span class="tok-str">"width:100%; padding:10px; font-family:monospace;
+        font-size:15px; margin:12px 0; border:1px solid #ddd;
+        border-radius:6px;"</span>&gt;
+    &lt;div id=<span class="tok-str">"activation-error"</span> style=<span class="tok-str">"color:#dc2626; font-size:13px;"</span>&gt;&lt;/div&gt;
+    &lt;button onclick=<span class="tok-str">"submitActivation()"</span>&gt;Activate&lt;/button&gt;
+    &lt;button onclick=<span class="tok-str">"closeDialog()"</span>&gt;Cancel&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre></div>
   </div>
 
-  <h3>CSP Configuration for Electron</h3>
-  <p>If your Electron app uses Content Security Policy, allow connections to the license server:</p>
+  <h4>Admin Panel (Ctrl+Shift+L)</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt">// Register keyboard shortcut for hidden admin panel</span>
+document.addEventListener(<span class="tok-str">'keydown'</span>, (e) =&gt; {
+  <span class="tok-kw">if</span> (e.ctrlKey &amp;&amp; e.shiftKey &amp;&amp; e.key === <span class="tok-str">'L'</span>) {
+    <span class="tok-kw">const</span> license = licenseService.getSavedLicense();
+    <span class="tok-kw">const</span> info = license
+      ? <span class="tok-str">`Key: ${license.key}\nTier: ${license.tier}\nExpiry: ${license.expiry}\nLast Validated: ${license.lastValidatedAt}`</span>
+      : <span class="tok-str">'No active license'</span>;
+    alert(<span class="tok-str">'License Info:\n\n'</span> + info);
+  }
+});</pre></div>
+  </div>
+
+  <h3>Step 4: Configure CSP (for Electron Apps)</h3>
+  <p>If your Electron app uses Content Security Policy, you must allow connections to the license server.</p>
   <div class="code-block">
     <div class="code-header"><span class="lang">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
     <div class="code-body"><pre><span class="tok-cmt">&lt;!-- In your Electron app's index.html --&gt;</span>
 &lt;meta http-equiv=<span class="tok-str">"Content-Security-Policy"</span>
   content=<span class="tok-str">"default-src 'self';
-    connect-src 'self' http://localhost:4000 https://license.yourdomain.com;
-    script-src 'self';"</span>&gt;</pre></div>
+    connect-src 'self' https://license.tlink.io http://localhost:4000;
+    script-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';"</span>&gt;</pre></div>
+  </div>
+  <div class="info-box warning">
+    <span class="icon">&#9888;</span>
+    <div>Include <strong>both</strong> your production domain (<code>https://license.tlink.io</code>) and localhost for development. Remove localhost in production builds.</div>
+  </div>
+
+  <h3>Step 5: Initialize on App Startup</h3>
+  <p>Wire everything together in your app's initialization code.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">typescript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt">// app-init.ts - Call this when your app starts</span>
+
+<span class="tok-kw">const</span> licenseService = <span class="tok-kw">new</span> LicenseService();
+
+<span class="tok-kw">async function</span> initApp() {
+  <span class="tok-kw">const</span> TRIAL_DAYS = <span class="tok-num">14</span>;
+  <span class="tok-kw">const</span> saved = licenseService.getSavedLicense();
+
+  <span class="tok-kw">if</span> (saved) {
+    <span class="tok-cmt">// Has a saved license - validate it</span>
+    <span class="tok-kw">const</span> result = <span class="tok-kw">await</span> licenseService.validate();
+    <span class="tok-kw">if</span> (result.valid) {
+      updateBanner(result.tier!, <span class="tok-num">0</span>, result.tier);
+      enableAllFeatures();
+    } <span class="tok-kw">else</span> {
+      updateBanner(<span class="tok-str">'expired'</span>, <span class="tok-num">0</span>, <span class="tok-kw">null</span>);
+      disableEditing();
+    }
+  } <span class="tok-kw">else</span> {
+    <span class="tok-cmt">// No license - check trial</span>
+    <span class="tok-kw">const</span> installDate = localStorage.getItem(<span class="tok-str">'install_date'</span>)
+      || (() =&gt; { localStorage.setItem(<span class="tok-str">'install_date'</span>, <span class="tok-kw">new</span> Date().toISOString()); <span class="tok-kw">return new</span> Date().toISOString(); })();
+
+    <span class="tok-kw">const</span> daysUsed = Math.floor((Date.now() - <span class="tok-kw">new</span> Date(installDate).getTime()) / (<span class="tok-num">86400000</span>));
+    <span class="tok-kw">const</span> daysLeft = Math.max(<span class="tok-num">0</span>, TRIAL_DAYS - daysUsed);
+
+    <span class="tok-kw">if</span> (daysLeft &gt; <span class="tok-num">0</span>) {
+      updateBanner(<span class="tok-str">'trial'</span>, daysLeft, <span class="tok-kw">null</span>);
+      enableAllFeatures();
+    } <span class="tok-kw">else</span> {
+      updateBanner(<span class="tok-str">'expired'</span>, <span class="tok-num">0</span>, <span class="tok-kw">null</span>);
+      disableEditing();
+      showActivationDialog();
+    }
+  }
+}</pre></div>
+  </div>
+</section>
+
+<section id="license-states">
+  <h3>License States Reference</h3>
+  <p>Your app should handle these license states and restrict features accordingly.</p>
+  <table class="state-table">
+    <thead>
+      <tr><th>State</th><th>Can Edit</th><th>Can Save</th><th>Can Export</th><th>Banner</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Trial</strong> (days remaining)</td>
+        <td class="yes">Yes</td>
+        <td class="yes">Yes</td>
+        <td class="yes">Yes</td>
+        <td><span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">Yellow - X days left</span></td>
+      </tr>
+      <tr>
+        <td><strong>Active</strong> <span class="tier-chip pro">Pro</span></td>
+        <td class="yes">Yes</td>
+        <td class="yes">Yes</td>
+        <td class="yes">Yes</td>
+        <td><span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">Blue - Pro</span></td>
+      </tr>
+      <tr>
+        <td><strong>Active</strong> <span class="tier-chip enterprise">Enterprise</span></td>
+        <td class="yes">Yes</td>
+        <td class="yes">Yes</td>
+        <td class="yes">Yes</td>
+        <td><span style="background:#ede9fe;color:#5b21b6;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">Purple - Enterprise</span></td>
+      </tr>
+      <tr>
+        <td><strong>Expired Trial</strong></td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td><span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">Red - Trial Expired</span></td>
+      </tr>
+      <tr>
+        <td><strong>Expired Key</strong></td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td><span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">Red - Key Expired</span></td>
+      </tr>
+      <tr>
+        <td><strong>Revoked</strong></td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td><span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">Red - License Revoked</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────── ADMIN WORKFLOW ────── -->
+<section id="admin-workflow">
+  <h2>Admin Workflow</h2>
+  <p>Step-by-step guide for administrators managing license keys through the dashboard.</p>
+
+  <ol class="steps">
+    <li>
+      <strong>Access the Dashboard</strong>
+      <p>Navigate to <code>http://your-server:4000/admin</code> in any modern browser. The root URL <code>/</code> automatically redirects to <code>/admin</code>.</p>
+    </li>
+    <li>
+      <strong>Login with Admin Credentials</strong>
+      <p>Enter your admin username and password. Default credentials are <code>admin</code> / <code>admin123</code> (change these in production via the <code>ADMIN_USERNAME</code> and <code>ADMIN_PASSWORD</code> environment variables).</p>
+    </li>
+    <li>
+      <strong>Generate Keys for Customers</strong>
+      <p>From the dashboard, select the target application, choose a tier (Pro or Enterprise), set an expiry date, and optionally enter customer details. Click "Generate Key" and the system will create a formatted key like <code>TLINK-NO-P4KR-2712-X9HJ-AB3F</code>.</p>
+    </li>
+    <li>
+      <strong>Send Key to Customer</strong>
+      <p>Copy the generated key and send it to your customer via email, Slack, or any secure channel. The key is self-contained and does not need additional setup on the customer side.</p>
+    </li>
+    <li>
+      <strong>Monitor Activations</strong>
+      <p>The dashboard shows real-time activation data: which machines have activated each key, when they last checked in (heartbeat), their OS, and app version. Use this to verify successful deployments.</p>
+    </li>
+    <li>
+      <strong>Revoke Keys if Needed</strong>
+      <p>If a customer's subscription ends or a key is compromised, revoke it from the dashboard. The key status changes to "revoked" and all activated machines will fail on their next heartbeat check (within 4 hours).</p>
+    </li>
+    <li>
+      <strong>Manage Settings</strong>
+      <p>Adjust server configuration via environment variables: change the port, update CORS origins, modify rate limits. Restart the server after changes to <code>.env</code>.</p>
+    </li>
+  </ol>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div><strong>Quick Stats:</strong> The dashboard home page shows total keys, active vs. revoked counts, tier breakdown, and recent activation activity at a glance.</div>
   </div>
 </section>
 
@@ -2063,9 +2846,181 @@ curl -X POST http://localhost:4000/api/auth/login \
   </div>
 </section>
 
+<!-- ────── MULTI-APP ARCHITECTURE ────── -->
+<section id="multi-app">
+  <h2>Multi-App Architecture</h2>
+  <p>A single Tlink License Server instance can manage licenses for <strong>multiple applications</strong>. Each app is registered with a unique code and keys are scoped per app.</p>
+
+  <h3>How It Works</h3>
+  <div class="arch-diagram">
+<span class="d-app">+-------------------+</span>     <span class="d-arrow">HTTPS</span>     <span class="d-server">+---------------------------+</span>     <span class="d-db">+------------------+</span>
+<span class="d-app">|  Tlink NetOps     |</span><span class="d-arrow">--------------&gt;</span><span class="d-server">|                           |</span><span class="d-arrow">----&gt;</span><span class="d-db">|                  |</span>
+<span class="d-app">|  (app_code: NO)   |</span>               <span class="d-server">|                           |</span>     <span class="d-db">| JSON Database    |</span>
+<span class="d-app">+-------------------+</span>               <span class="d-server">|   Tlink License Server    |</span>     <span class="d-db">|                  |</span>
+                                     <span class="d-server">|   (single instance)       |</span>     <span class="d-db">| - apps[]         |</span>
+<span class="d-app">+-------------------+</span>               <span class="d-server">|                           |</span>     <span class="d-db">| - license_keys[] |</span>
+<span class="d-app">|  Tlink Monitor    |</span><span class="d-arrow">--------------&gt;</span><span class="d-server">|   /api/license/activate   |</span>     <span class="d-db">| - activations[]  |</span>
+<span class="d-app">|  (app_code: TM)   |</span>               <span class="d-server">|   /api/license/validate   |</span>     <span class="d-db">| - admin_users[]  |</span>
+<span class="d-app">+-------------------+</span>               <span class="d-server">|   /api/license/heartbeat  |</span>     <span class="d-db">|                  |</span>
+                                     <span class="d-server">|                           |</span>     <span class="d-db">+------------------+</span>
+<span class="d-app">+-------------------+</span>               <span class="d-server">|                           |</span>
+<span class="d-app">|  Tlink Designer   |</span><span class="d-arrow">--------------&gt;</span><span class="d-server">|                           |</span>
+<span class="d-app">|  (app_code: TD)   |</span>               <span class="d-server">+---------------------------+</span>
+<span class="d-app">+-------------------+</span>                          <span class="d-arrow">|</span>
+                                     <span class="d-label">+---------------------------+</span>
+                                     <span class="d-label">|   Admin Dashboard (/admin)|</span>
+                                     <span class="d-label">|   Manages ALL apps        |</span>
+                                     <span class="d-label">+---------------------------+</span></div>
+
+  <h3>Register Multiple Apps</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Register each app with a unique 2-letter code</span>
+curl -X POST https://your-server:4000/api/keys/apps/register \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"appCode": "NO", "appName": "Tlink NetOps"}'
+
+curl -X POST https://your-server:4000/api/keys/apps/register \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"appCode": "TM", "appName": "Tlink Monitor"}'
+
+curl -X POST https://your-server:4000/api/keys/apps/register \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"appCode": "TD", "appName": "Tlink Designer"}'</pre></div>
+  </div>
+
+  <h3>Key Format Includes App Code</h3>
+  <p>Every generated key embeds the app code, ensuring keys cannot be used across apps.</p>
+  <table>
+    <thead><tr><th>App</th><th>Code</th><th>Key Example</th></tr></thead>
+    <tbody>
+      <tr><td>Tlink NetOps</td><td><code>NO</code></td><td><code>TLINK-<strong>NO</strong>-P4KR-2712-X9HJ-AB3F</code></td></tr>
+      <tr><td>Tlink Monitor</td><td><code>TM</code></td><td><code>TLINK-<strong>TM</strong>-E7RW-2803-K4NP-QD9S</code></td></tr>
+      <tr><td>Tlink Designer</td><td><code>TD</code></td><td><code>TLINK-<strong>TD</strong>-P2MX-2901-H8CJ-LF4T</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Benefits of Multi-App Architecture</h3>
+  <ul>
+    <li><strong>Single dashboard</strong> &mdash; Manage all apps, keys, and activations from one admin interface</li>
+    <li><strong>Separate key pools</strong> &mdash; Keys are scoped per app; a NetOps key will not activate Monitor</li>
+    <li><strong>Unified analytics</strong> &mdash; View cross-app stats and per-app breakdowns</li>
+    <li><strong>One deployment</strong> &mdash; Run a single server instance, reducing infrastructure costs</li>
+    <li><strong>App filtering</strong> &mdash; API supports filtering keys by app: <code>GET /api/keys?app=NO</code></li>
+  </ul>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>When activating from a client, pass <code>appCode</code> in the request body. The server will verify the key was generated for that specific app and reject mismatches with a <code>403</code> error.</div>
+  </div>
+</section>
+
 <!-- ────── DEPLOYMENT ────── -->
 <section id="deployment">
-  <h2>Deployment</h2>
+  <h2>Production Deployment</h2>
+  <p>Comprehensive guide for deploying the Tlink License Server in a production environment.</p>
+
+  <h3>Cloud Deployment</h3>
+  <p>The license server runs on any cloud provider that supports Node.js or Docker. Here are recommended setups.</p>
+
+  <h4>DigitalOcean / AWS EC2 / GCP Compute</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># 1. Provision a small instance (1 CPU, 1GB RAM is sufficient)</span>
+<span class="tok-cmt"># 2. SSH into the server</span>
+ssh root@your-server-ip
+
+<span class="tok-cmt"># 3. Install Node.js 20</span>
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+<span class="tok-cmt"># 4. Clone and set up</span>
+git clone https://github.com/tlink/license-server.git /opt/tlink-license
+cd /opt/tlink-license
+npm ci --omit=dev
+
+<span class="tok-cmt"># 5. Configure</span>
+cp .env.example .env
+nano .env  <span class="tok-cmt"># Set production values</span>
+
+<span class="tok-cmt"># 6. Seed and start</span>
+npm run seed
+npm start</pre></div>
+  </div>
+
+  <h3>Domain Setup (license.tlink.io)</h3>
+  <p>Point a subdomain to your server for clean, memorable URLs.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">dns</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Add an A record in your DNS provider</span>
+license.tlink.io  A  123.45.67.89  <span class="tok-cmt"># Your server IP</span>
+
+<span class="tok-cmt"># Or use a CNAME for load-balanced setups</span>
+license.tlink.io  CNAME  your-lb.cloud-provider.com</pre></div>
+  </div>
+
+  <h3>SSL/HTTPS with Nginx Reverse Proxy</h3>
+  <p>Always run behind a reverse proxy with SSL termination in production. Here is an nginx configuration.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">nginx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># /etc/nginx/sites-available/license.tlink.io</span>
+server {
+    listen <span class="tok-num">80</span>;
+    server_name license.tlink.io;
+    <span class="tok-kw">return</span> <span class="tok-num">301</span> https://$host$request_uri;
+}
+
+server {
+    listen <span class="tok-num">443</span> ssl http2;
+    server_name license.tlink.io;
+
+    ssl_certificate     /etc/letsencrypt/live/license.tlink.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/license.tlink.io/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:<span class="tok-num">4000</span>;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection <span class="tok-str">'upgrade'</span>;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Install certbot and get SSL certificate</span>
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d license.tlink.io
+
+<span class="tok-cmt"># Enable the site</span>
+sudo ln -s /etc/nginx/sites-available/license.tlink.io /etc/nginx/sites-enabled/
+sudo nginx -t &amp;&amp; sudo systemctl reload nginx</pre></div>
+  </div>
+
+  <h3>Firewall Rules</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Only expose ports 80 (redirect), 443 (HTTPS), and 22 (SSH)</span>
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow <span class="tok-num">22</span>/tcp
+sudo ufw allow <span class="tok-num">80</span>/tcp
+sudo ufw allow <span class="tok-num">443</span>/tcp
+sudo ufw enable
+
+<span class="tok-cmt"># Port 4000 should NOT be exposed publicly</span>
+<span class="tok-cmt"># Nginx proxies requests from 443 to localhost:4000</span></pre></div>
+  </div>
 
   <h3>Docker Deployment</h3>
   <div class="code-block">
@@ -2143,8 +3098,47 @@ DATABASE_PATH=./data/licenses.db</pre></div>
   <div class="code-block">
     <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
     <div class="code-body"><pre><span class="tok-cmt"># Add to crontab (daily at 2 AM)</span>
-0 2 * * * cp /app/data/licenses.json /backups/licenses-$(date +\%Y\%m\%d).json</pre></div>
+0 2 * * * cp /app/data/licenses.json /backups/licenses-$(date +\%Y\%m\%d).json
+
+<span class="tok-cmt"># Keep only the last 30 days of backups</span>
+0 3 * * * find /backups -name "licenses-*.json" -mtime +30 -delete
+
+<span class="tok-cmt"># Optional: sync to cloud storage</span>
+0 4 * * * aws s3 cp /backups/licenses-$(date +\%Y\%m\%d).json s3://your-bucket/backups/</pre></div>
   </div>
+
+  <h3>Monitoring</h3>
+  <p>Use the health endpoint for uptime monitoring and alerting.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Simple health check script (add to cron every 5 minutes)</span>
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://license.tlink.io/api/health)
+<span class="tok-kw">if</span> [ "$STATUS" != "200" ]; <span class="tok-kw">then</span>
+  echo "License server is DOWN (status: $STATUS)" | mail -s "ALERT" admin@tlink.io
+<span class="tok-kw">fi</span>
+
+<span class="tok-cmt"># Or use uptime services: UptimeRobot, Pingdom, Better Uptime</span>
+<span class="tok-cmt"># Monitor: GET https://license.tlink.io/api/health</span>
+<span class="tok-cmt"># Expected: { "status": "ok" } with HTTP 200</span></pre></div>
+  </div>
+
+  <h3>Security Hardening Checklist</h3>
+  <ul class="checklist">
+    <li>Change <code>JWT_SECRET</code> to a cryptographically random string (64+ chars)</li>
+    <li>Change <code>KEY_SALT</code> to a unique random string (32+ chars)</li>
+    <li>Set a strong <code>ADMIN_PASSWORD</code> (12+ chars, mixed case, numbers, symbols)</li>
+    <li>Restrict <code>CORS_ORIGINS</code> to specific domains (never use <code>*</code> in production)</li>
+    <li>Use HTTPS with a reverse proxy (nginx / Caddy) in front of the server</li>
+    <li>Place behind a firewall; only expose ports 80 and 443 publicly</li>
+    <li>Port 4000 should only be accessible from localhost (via nginx proxy)</li>
+    <li>Mount <code>/data</code> as a persistent volume for database durability</li>
+    <li>Set up daily automated backups of <code>data/licenses.json</code></li>
+    <li>Monitor rate-limit headers for abuse patterns</li>
+    <li>Rotate <code>JWT_SECRET</code> periodically (forces re-authentication of admin sessions)</li>
+    <li>Keep Node.js and npm packages updated with <code>npm audit</code></li>
+    <li>Run the server as a non-root user</li>
+    <li>Enable OS-level automatic security updates</li>
+  </ul>
 </section>
 
 <!-- ────── TROUBLESHOOTING ────── -->
@@ -2395,6 +3389,14 @@ document.addEventListener('keydown', (e) => {
     searchResults.classList.remove('active');
   }
 });
+
+// ── Install Tabs ──
+function switchInstallTab(tab) {
+  document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.install-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.install-tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
 
 // ── Try It: Activate ──
 async function tryActivate() {
