@@ -1,0 +1,137 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target_arm: node18-macos-arm64
+            target_x64: node18-macos-x64
+            binary_arm: tlink-license-server-macos-arm64
+            binary_x64: tlink-license-server-macos-x64
+            archive_arm: tlink-license-server-macos-arm64.tar.gz
+            archive_x64: tlink-license-server-macos-x64.tar.gz
+            platform: macos
+          - os: ubuntu-latest
+            target: node18-linux-x64
+            binary: tlink-license-server-linux
+            archive: tlink-license-server-linux-x64.tar.gz
+            platform: linux
+          - os: windows-latest
+            target: node18-win-x64
+            binary: tlink-license-server-win.exe
+            archive: tlink-license-server-windows-x64.zip
+            platform: windows
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS executables (ARM64 + x64)
+        if: matrix.platform == 'macos'
+        run: |
+          npx pkg . --target ${{ matrix.target_arm }} --output dist/${{ matrix.binary_arm }} --compress GZip
+          npx pkg . --target ${{ matrix.target_x64 }} --output dist/${{ matrix.binary_x64 }} --compress GZip
+
+      - name: Build executable
+        if: matrix.platform != 'macos'
+        run: npx pkg . --target ${{ matrix.target }} --output dist/${{ matrix.binary }} --compress GZip
+
+      - name: Create macOS ARM64 archive
+        if: matrix.platform == 'macos'
+        run: |
+          mkdir -p staging-arm64
+          cp dist/${{ matrix.binary_arm }} staging-arm64/tlink-license-server-macos
+          cp scripts/install-mac.sh staging-arm64/
+          cp scripts/uninstall-mac.sh staging-arm64/
+          cp .env.example staging-arm64/
+          cp -R admin staging-arm64/ 2>/dev/null || true
+          cp -R docs staging-arm64/ 2>/dev/null || true
+          tar -czf dist/${{ matrix.archive_arm }} -C staging-arm64 .
+
+      - name: Create macOS x64 archive
+        if: matrix.platform == 'macos'
+        run: |
+          mkdir -p staging-x64
+          cp dist/${{ matrix.binary_x64 }} staging-x64/tlink-license-server-macos
+          cp scripts/install-mac.sh staging-x64/
+          cp scripts/uninstall-mac.sh staging-x64/
+          cp .env.example staging-x64/
+          cp -R admin staging-x64/ 2>/dev/null || true
+          cp -R docs staging-x64/ 2>/dev/null || true
+          tar -czf dist/${{ matrix.archive_x64 }} -C staging-x64 .
+
+      - name: Create Linux archive
+        if: matrix.platform == 'linux'
+        run: |
+          mkdir -p staging
+          cp dist/${{ matrix.binary }} staging/tlink-license-server-linux
+          cp scripts/install-linux.sh staging/
+          cp scripts/uninstall-linux.sh staging/
+          cp .env.example staging/
+          cp -R admin staging/ 2>/dev/null || true
+          cp -R docs staging/ 2>/dev/null || true
+          tar -czf dist/${{ matrix.archive }} -C staging .
+
+      - name: Create Windows archive
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path staging
+          Copy-Item "dist/${{ matrix.binary }}" "staging/tlink-license-server-win.exe"
+          Copy-Item "scripts/install-win.bat" "staging/"
+          Copy-Item "scripts/uninstall-win.bat" "staging/"
+          Copy-Item ".env.example" "staging/"
+          if (Test-Path "admin") { Copy-Item -Recurse "admin" "staging/" }
+          if (Test-Path "docs") { Copy-Item -Recurse "docs" "staging/" }
+          Compress-Archive -Path "staging/*" -DestinationPath "dist/${{ matrix.archive }}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: find artifacts -type f | head -20
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/**/*.tar.gz
+            artifacts/**/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

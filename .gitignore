@@ -4,3 +4,6 @@ data/*.db
 coverage/
 *.log
 .DS_Store
+dist/
+data/*.json
+data/.server.pid
