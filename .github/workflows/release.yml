@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -40,7 +43,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -63,7 +66,10 @@ jobs:
           cp dist/${{ matrix.binary_arm }} staging-arm64/tlink-license-server-macos
           cp scripts/install-mac.sh staging-arm64/
           cp scripts/uninstall-mac.sh staging-arm64/
+          cp scripts/seed.js staging-arm64/
           cp .env.example staging-arm64/
+          cp ecosystem.config.js staging-arm64/ 2>/dev/null || true
+          cp README.md staging-arm64/
           cp -R admin staging-arm64/ 2>/dev/null || true
           cp -R docs staging-arm64/ 2>/dev/null || true
           tar -czf dist/${{ matrix.archive_arm }} -C staging-arm64 .
@@ -75,7 +81,10 @@ jobs:
           cp dist/${{ matrix.binary_x64 }} staging-x64/tlink-license-server-macos
           cp scripts/install-mac.sh staging-x64/
           cp scripts/uninstall-mac.sh staging-x64/
+          cp scripts/seed.js staging-x64/
           cp .env.example staging-x64/
+          cp ecosystem.config.js staging-x64/ 2>/dev/null || true
+          cp README.md staging-x64/
           cp -R admin staging-x64/ 2>/dev/null || true
           cp -R docs staging-x64/ 2>/dev/null || true
           tar -czf dist/${{ matrix.archive_x64 }} -C staging-x64 .
@@ -87,7 +96,10 @@ jobs:
           cp dist/${{ matrix.binary }} staging/tlink-license-server-linux
           cp scripts/install-linux.sh staging/
           cp scripts/uninstall-linux.sh staging/
+          cp scripts/seed.js staging/
           cp .env.example staging/
+          cp ecosystem.config.js staging/ 2>/dev/null || true
+          cp README.md staging/
           cp -R admin staging/ 2>/dev/null || true
           cp -R docs staging/ 2>/dev/null || true
           tar -czf dist/${{ matrix.archive }} -C staging .
@@ -100,7 +112,10 @@ jobs:
           Copy-Item "dist/${{ matrix.binary }}" "staging/tlink-license-server-win.exe"
           Copy-Item "scripts/install-win.bat" "staging/"
           Copy-Item "scripts/uninstall-win.bat" "staging/"
+          Copy-Item "scripts/seed.js" "staging/"
           Copy-Item ".env.example" "staging/"
+          Copy-Item "README.md" "staging/"
+          if (Test-Path "ecosystem.config.js") { Copy-Item "ecosystem.config.js" "staging/" }
           if (Test-Path "admin") { Copy-Item -Recurse "admin" "staging/" }
           if (Test-Path "docs") { Copy-Item -Recurse "docs" "staging/" }
           Compress-Archive -Path "staging/*" -DestinationPath "dist/${{ matrix.archive }}"

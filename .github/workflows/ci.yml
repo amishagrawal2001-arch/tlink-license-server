@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Seed database
+        run: node scripts/seed.js
+
+      - name: Start server
+        run: |
+          nohup node src/index.js > /tmp/server.log 2>&1 &
+          sleep 3
+
+      - name: Health check
+        run: curl -sf http://localhost:4000/api/health
+
+      - name: Test login
+        run: |
+          TOKEN=$(curl -sf http://localhost:4000/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"admin","password":"admin123"}' | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).token))")
+          echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Test key generation
+        run: |
+          curl -sf http://localhost:4000/api/keys \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"appCode":"NO","tier":"pro","expiryDate":"2028-12-31","customerName":"CI Test","maxMachines":3}'
+
+      - name: Test license activation
+        run: |
+          KEY=$(curl -sf http://localhost:4000/api/keys \
+            -H "Authorization: Bearer $TOKEN" | node -e "process.stdin.on('data',d=>{const k=JSON.parse(d).keys[0];console.log(k.key)})")
+          curl -sf http://localhost:4000/api/license/activate \
+            -H "Content-Type: application/json" \
+            -d "{\"key\":\"$KEY\",\"machineId\":\"ci-test\",\"appCode\":\"NO\",\"appVersion\":\"1.0.0\",\"os\":\"linux\"}"
+
+      - name: Test dashboard stats
+        run: |
+          curl -sf http://localhost:4000/api/dashboard/stats \
+            -H "Authorization: Bearer $TOKEN"
+
+      - name: Test settings
+        run: |
+          curl -sf http://localhost:4000/api/settings \
+            -H "Authorization: Bearer $TOKEN"
+
+      - name: Show server logs
+        if: failure()
+        run: cat /tmp/server.log

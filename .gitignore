@@ -8,3 +8,4 @@ dist/
 data/*.json
 data/.server.pid
 certs/
+logs/
