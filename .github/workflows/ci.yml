@@ -24,16 +24,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create .env from example
+        run: cp .env.example .env
+
+      - name: Create data directory
+        run: mkdir -p data
+
       - name: Seed database
         run: node scripts/seed.js
 
       - name: Start server
         run: |
+          touch /tmp/server.log
           nohup node src/index.js > /tmp/server.log 2>&1 &
-          sleep 3
+          sleep 5
+          cat /tmp/server.log
 
       - name: Health check
-        run: curl -sf http://localhost:4000/api/health
+        run: |
+          curl -sf http://localhost:4000/api/health || (echo "Server failed to start:" && cat /tmp/server.log && exit 1)
 
       - name: Test login
         run: |
@@ -68,5 +77,5 @@ jobs:
             -H "Authorization: Bearer $TOKEN"
 
       - name: Show server logs
-        if: failure()
-        run: cat /tmp/server.log
+        if: always()
+        run: cat /tmp/server.log 2>/dev/null || echo "No log file"
