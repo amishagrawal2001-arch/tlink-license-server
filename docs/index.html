@@ -1039,6 +1039,12 @@ li {
     <a href="#deployment" class="sidebar-link">Production Deployment</a>
     <a href="#troubleshooting" class="sidebar-link">Troubleshooting</a>
   </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">License Management</div>
+    <a href="#revocation" class="sidebar-link">Revocation &amp; Deactivation</a>
+    <a href="#app-license-selection" class="sidebar-link">App-Based License Selection</a>
+  </div>
 </nav>
 
 <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
@@ -3242,6 +3248,328 @@ STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://license.tlink.io/api/hea
       </ul>
     </div>
   </details>
+</section>
+
+<!-- ────── LICENSE REVOCATION & DEACTIVATION ────── -->
+<section id="revocation">
+  <h2>License Revocation &amp; Deactivation</h2>
+  <p>There are three ways a license can stop working: <strong>revocation</strong>, <strong>deactivation</strong>, and <strong>expiration</strong>. Each serves a different purpose and has different consequences.</p>
+
+  <h3>Revoke vs Deactivate vs Expire</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>Scope</th>
+        <th>Reversible?</th>
+        <th>Key Status After</th>
+        <th>Typical Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Revoke</strong></td>
+        <td>All machines</td>
+        <td>No &mdash; permanent</td>
+        <td><code>revoked</code></td>
+        <td>Refund, abuse, policy violation</td>
+      </tr>
+      <tr>
+        <td><strong>Deactivate</strong></td>
+        <td>One machine only</td>
+        <td>Yes &mdash; can reactivate</td>
+        <td><code>active</code> (key stays valid)</td>
+        <td>Customer switching machines</td>
+      </tr>
+      <tr>
+        <td><strong>Expire</strong></td>
+        <td>All machines</td>
+        <td>No &mdash; natural end</td>
+        <td><code>expired</code></td>
+        <td>Subscription period ends</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>What Happens After Revocation</h4>
+  <div class="flow-diagram">
+    <div class="flow-row">
+      <span class="flow-box danger">Admin Revokes Key</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box warning">Next Heartbeat (up to 4h)</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">Server Returns Revoked</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box danger">App Shows Warning</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box danger">Editing Blocked</span>
+    </div>
+  </div>
+
+  <h3>How to Revoke a License Key</h3>
+  <p>There are three methods to permanently revoke a license key.</p>
+
+  <h4>Method 1 &mdash; From the Admin Dashboard</h4>
+  <ol class="steps">
+    <li>Log in to the admin dashboard</li>
+    <li>Navigate to <strong>License Keys</strong> and locate the key</li>
+    <li>Click the <strong>Revoke</strong> button</li>
+    <li>Confirm the action in the dialog</li>
+  </ol>
+  <div class="info-box warning">
+    <span class="icon">&#9888;</span>
+    <div>Revocation is <strong>permanent</strong>. The key cannot be reactivated after revocation. All machines will be deactivated.</div>
+  </div>
+
+  <h4>Method 2 &mdash; From the API</h4>
+  <p>Send a <code>DELETE</code> request to <code>/api/keys/:id</code> with admin authentication:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Revoke a license key by its ID</span>
+curl -X DELETE http://localhost:4000/api/keys/abc123 \
+  -H <span class="tok-str">"Authorization: Bearer &lt;admin-token&gt;"</span></pre></div>
+  </div>
+  <p>Response on success:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>{
+  <span class="tok-key">"success"</span>: <span class="tok-kw">true</span>,
+  <span class="tok-key">"message"</span>: <span class="tok-str">"License key revoked"</span>
+}</pre></div>
+  </div>
+
+  <h4>Method 3 &mdash; From the CLI (if available)</h4>
+  <p>If you have the Tlink CLI tool installed, you can revoke from the command line:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>tlink-admin revoke-key --id abc123 --server http://localhost:4000</pre></div>
+  </div>
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>The CLI tool wraps the same <code>DELETE /api/keys/:id</code> endpoint. It requires a valid admin token configured in your environment.</div>
+  </div>
+
+  <h3>How to Deactivate a Machine</h3>
+  <p>Deactivation removes a single machine from a license key without revoking the key itself. This is useful when a customer is switching hardware or reinstalling their OS.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Deactivate a specific machine from a license key</span>
+curl -X POST http://localhost:4000/api/license/deactivate \
+  -H <span class="tok-str">"Content-Type: application/json"</span> \
+  -d <span class="tok-str">'{
+    "key": "TLINK-NO-P100-2601-ABCD-EFGH",
+    "machineId": "machine-uuid-here"
+  }'</span></pre></div>
+  </div>
+  <p>After deactivation, the machine slot is freed up and the customer can activate on a new machine using the same key.</p>
+
+  <h3>What Happens After Revocation &mdash; Detailed</h3>
+  <p>When a key is revoked, active clients do <strong>not</strong> lose access immediately. The revocation takes effect on the next heartbeat cycle:</p>
+  <ol class="steps">
+    <li><strong>Revoke:</strong> Admin revokes the key via dashboard, API, or CLI</li>
+    <li><strong>Heartbeat Check (up to 4 hours):</strong> The client app sends its next periodic heartbeat to the server</li>
+    <li><strong>Server Response:</strong> Server returns <code>"status": "revoked"</code> in the heartbeat response</li>
+    <li><strong>App Warning:</strong> The client app displays a warning to the user that their license has been revoked</li>
+    <li><strong>Feature Lock:</strong> Editing and premium features are blocked after a short grace period</li>
+  </ol>
+  <div class="info-box warning">
+    <span class="icon">&#9888;</span>
+    <div><strong>Offline Users:</strong> If a user is offline when revocation occurs, they will not receive the revocation notice until they reconnect and a heartbeat is sent. During this time, the app may continue to function based on its last known license state.</div>
+  </div>
+
+  <h3>Instant Revocation Note</h3>
+  <p>By default, the heartbeat interval is <strong>4 hours</strong>. This means there can be up to a 4-hour window between revoking a key and the client app enforcing it.</p>
+  <p>For tighter control, you can configure a shorter heartbeat interval:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Interval</th>
+        <th>Trade-Off</th>
+        <th>Best For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>4 hours</code> (default)</td>
+        <td>Low server load, acceptable delay</td>
+        <td>Most use cases</td>
+      </tr>
+      <tr>
+        <td><code>1 hour</code></td>
+        <td>Moderate load, faster enforcement</td>
+        <td>SaaS products</td>
+      </tr>
+      <tr>
+        <td><code>15 minutes</code></td>
+        <td>Higher load, near-instant enforcement</td>
+        <td>High-security environments</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>Configure the heartbeat interval in your client application settings. Shorter intervals increase server load proportionally to the number of active clients.</div>
+  </div>
+</section>
+
+<!-- ────── APP-BASED LICENSE SELECTION ────── -->
+<section id="app-license-selection">
+  <h2>App-Based License Selection</h2>
+  <p>The Tlink License Server supports multiple applications from a single server instance. Each application has a unique app code that is embedded into the license key, ensuring keys are app-specific.</p>
+
+  <h3>Registered Apps</h3>
+  <p>View all registered applications using the admin API:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># List all registered apps</span>
+curl http://localhost:4000/api/keys/apps/list \
+  -H <span class="tok-str">"Authorization: Bearer &lt;admin-token&gt;"</span></pre></div>
+  </div>
+
+  <h4>Register a New App</h4>
+  <p>To register a new application, send a <code>POST</code> request with the app name and a unique two-letter code:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Register a new app</span>
+curl -X POST http://localhost:4000/api/keys/apps/register \
+  -H <span class="tok-str">"Authorization: Bearer &lt;admin-token&gt;"</span> \
+  -H <span class="tok-str">"Content-Type: application/json"</span> \
+  -d <span class="tok-str">'{
+    "name": "My Custom App",
+    "code": "MA",
+    "description": "Custom desktop application"
+  }'</span></pre></div>
+  </div>
+
+  <h3>Generating Keys by App Type</h3>
+  <p>From the admin dashboard, generating a key for a specific app follows this workflow:</p>
+
+  <div class="flow-diagram">
+    <div class="flow-row">
+      <span class="flow-box admin">1. Select App</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box admin">2. Select Tier</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box admin">3. Set Expiry</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box admin">4. Set Max Machines</span>
+    </div>
+    <div class="flow-row">
+      <span class="flow-box user">5. Enter Customer Details</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">6. Click Generate</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-box server">Key Created</span>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Field</th>
+        <th>Options / Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>App</strong></td>
+        <td>Select from dropdown: NetOps, Tlink Dev, or any registered app</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>Tier</strong></td>
+        <td><code>Pro</code> or <code>Enterprise</code></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>Expiry Date</strong></td>
+        <td>Date picker &mdash; e.g. <code>2027-03-27</code></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>Max Machines</strong></td>
+        <td>Number of allowed activations &mdash; e.g. <code>3</code></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>Customer Details</strong></td>
+        <td>Name, email, company (optional)</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>Generate</strong></td>
+        <td>Click to create and display the key</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Key Format by App</h3>
+  <p>Each generated key embeds the app code, making it easy to identify which application a key belongs to:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>App</th>
+        <th>Code</th>
+        <th>Key Format Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tlink NetOps</td>
+        <td><code>NO</code></td>
+        <td><code>TLINK-NO-PXXX-YYMM-XXXX-XXXX</code></td>
+      </tr>
+      <tr>
+        <td>Tlink Dev</td>
+        <td><code>TD</code></td>
+        <td><code>TLINK-TD-PXXX-YYMM-XXXX-XXXX</code></td>
+      </tr>
+      <tr>
+        <td>(Custom App)</td>
+        <td><code>XX</code></td>
+        <td><code>TLINK-XX-PXXX-YYMM-XXXX-XXXX</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Cross-App Key Validation</h3>
+  <p>Keys are <strong>app-specific</strong> and cannot be used across different applications:</p>
+  <ul>
+    <li>A NetOps key (<code>TLINK-NO-...</code>) will <strong>not</strong> work in Tlink Dev, and vice versa</li>
+    <li>The app code embedded in the key must match the application's registered code</li>
+    <li>The server validates the <code>appCode</code> field on every activation request</li>
+  </ul>
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>If a user attempts to activate a key in the wrong app, the server returns <code>400: App code mismatch</code>. Ensure customers receive the correct key for their product.</div>
+  </div>
+
+  <h3>Bulk Key Generation</h3>
+  <p>Use the API to generate multiple keys at once for a specific app. This is useful for enterprise orders or reseller distribution:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Generate 10 keys for Tlink NetOps (Pro tier, 1-year expiry, 3 machines each)</span>
+for i in $(seq 1 10); do
+  curl -s -X POST http://localhost:4000/api/keys \
+    -H <span class="tok-str">"Authorization: Bearer &lt;admin-token&gt;"</span> \
+    -H <span class="tok-str">"Content-Type: application/json"</span> \
+    -d <span class="tok-str">"{
+      \"appCode\": \"NO\",
+      \"tier\": \"pro\",
+      \"expiresAt\": \"2027-03-27\",
+      \"maxMachines\": 3,
+      \"customerName\": \"Bulk Order - Key $i\",
+      \"customerEmail\": \"admin@company.com\"
+    }"</span>
+  echo ""
+done</pre></div>
+  </div>
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>For large bulk operations, consider adding a short delay between requests to avoid hitting rate limits (30 req/min for public routes, 100 req/min for admin routes).</div>
+  </div>
 </section>
 
 </main>
