@@ -80,6 +80,32 @@ router.delete('/:id/permanent', (req, res) => {
   res.json({ success: true, message: 'Key permanently deleted' })
 })
 
+// Bulk revoke
+router.post('/bulk/revoke', (req, res) => {
+  const { ids } = req.body
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'ids array required' })
+  let count = 0
+  ids.forEach(id => {
+    const result = db.update('license_keys', parseInt(id), { status: 'revoked' })
+    if (result.changes > 0) count++
+  })
+  res.json({ success: true, message: `${count} key(s) revoked`, count })
+})
+
+// Bulk permanent delete
+router.post('/bulk/delete', (req, res) => {
+  const { ids } = req.body
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'ids array required' })
+  let count = 0
+  ids.forEach(id => {
+    const intId = parseInt(id)
+    db.deleteWhere('activations', a => a.key_id === intId)
+    const result = db.delete('license_keys', intId)
+    if (result.changes > 0) count++
+  })
+  res.json({ success: true, message: `${count} key(s) permanently deleted`, count })
+})
+
 router.get('/:id/activations', (req, res) => {
   const activations = db.findAll('activations', a => a.key_id === parseInt(req.params.id))
   res.json({ activations })

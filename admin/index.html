@@ -97,7 +97,13 @@ tr:hover td{background:#f7f8fa}
       <select id="filterStatus" onchange="loadKeys()"><option value="">All Status</option><option value="active">Active</option><option value="revoked">Revoked</option></select>
     </div>
     <table>
-      <thead><tr><th>Key</th><th>App</th><th>Tier</th><th>Customer</th><th>Expiry</th><th>Machines</th><th>Status</th><th>Actions</th></tr></thead>
+      <div id="bulkActions" style="display:none;padding:10px 16px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;margin-bottom:10px;align-items:center;gap:12px">
+        <span id="selectedCount" style="font-weight:600;font-size:14px">0 selected</span>
+        <button onclick="bulkRevoke()" style="background:#e53e3e;color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">🔒 Revoke Selected</button>
+        <button onclick="bulkDelete()" style="background:#7f1d1d;color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">🗑 Delete Selected</button>
+        <button onclick="clearSelection()" style="background:#e2e8f0;color:#475569;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px">✕ Clear</button>
+      </div>
+      <thead><tr><th style="width:30px"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th><th>Key</th><th>App</th><th>Tier</th><th>Customer</th><th>Expiry</th><th>Machines</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody id="keysTable"></tbody>
     </table>
   </div>
@@ -279,6 +285,7 @@ async function loadKeys() {
     const data = await res.json()
     document.getElementById('keysTable').innerHTML = data.keys.map(k => `
       <tr>
+        <td><input type="checkbox" class="key-checkbox" value="${k.id}" onchange="updateBulkBar()"></td>
         <td><code style="font-size:12px">${k.key}</code></td>
         <td>${k.app_name}</td>
         <td><span class="badge ${k.tier}">${k.tier}</span></td>
@@ -292,6 +299,8 @@ async function loadKeys() {
         </td>
       </tr>
     `).join('')
+    document.getElementById('selectAll').checked = false
+    updateBulkBar()
   } catch (e) { console.error(e) }
 }
 
@@ -411,6 +420,58 @@ async function revokeKey(id) {
     await fetch(API + '/keys/' + id, { method: 'DELETE', headers: authHeaders() })
     loadKeys()
     loadStats()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+function getSelectedIds() {
+  return [...document.querySelectorAll('.key-checkbox:checked')].map(cb => parseInt(cb.value))
+}
+
+function updateBulkBar() {
+  const ids = getSelectedIds()
+  const bar = document.getElementById('bulkActions')
+  const count = document.getElementById('selectedCount')
+  if (ids.length > 0) {
+    bar.style.display = 'flex'
+    count.textContent = ids.length + ' selected'
+  } else {
+    bar.style.display = 'none'
+  }
+}
+
+function toggleSelectAll(el) {
+  document.querySelectorAll('.key-checkbox').forEach(cb => cb.checked = el.checked)
+  updateBulkBar()
+}
+
+function clearSelection() {
+  document.querySelectorAll('.key-checkbox').forEach(cb => cb.checked = false)
+  document.getElementById('selectAll').checked = false
+  updateBulkBar()
+}
+
+async function bulkRevoke() {
+  const ids = getSelectedIds()
+  if (ids.length === 0) return
+  if (!confirm('Revoke ' + ids.length + ' selected key(s)? They will be disabled but kept in records.')) return
+  try {
+    const res = await fetch(API + '/keys/bulk/revoke', { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) })
+    const data = await res.json()
+    alert(data.message)
+    loadKeys(); loadStats()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+async function bulkDelete() {
+  const ids = getSelectedIds()
+  if (ids.length === 0) return
+  if (!confirm('⚠️ PERMANENTLY DELETE ' + ids.length + ' selected key(s)?\n\nThis will remove the keys and ALL activations. This CANNOT be undone!')) return
+  if (!confirm('Are you absolutely sure? This is irreversible.')) return
+  try {
+    const res = await fetch(API + '/keys/bulk/delete', { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) })
+    const data = await res.json()
+    alert(data.message)
+    loadKeys(); loadStats()
   } catch (e) { alert('Error: ' + e.message) }
 }
 
