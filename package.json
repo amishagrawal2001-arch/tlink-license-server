@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Centralized License Management Server for Tlink Products",
   "main": "src/index.js",
+  "bin": "src/index.js",
   "private": true,
   "scripts": {
     "start": "node src/index.js",
