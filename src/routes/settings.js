@@ -40,6 +40,12 @@ router.get('/', (req, res) => {
     // Don't expose secrets fully
     jwtSecretSet: !!(env.JWT_SECRET && env.JWT_SECRET !== 'change-me-to-a-random-string'),
     keySaltSet: !!(env.KEY_SALT && env.KEY_SALT !== 'change-me-to-another-random-string'),
+    // HTTPS
+    httpsEnabled: env.HTTPS_ENABLED === 'true',
+    httpsPort: env.HTTPS_PORT || '4443',
+    sslCertPath: env.SSL_CERT_PATH || './certs/cert.pem',
+    sslKeyPath: env.SSL_KEY_PATH || './certs/key.pem',
+    sslAutoGenerate: env.SSL_AUTO_GENERATE !== 'false',
     networkAddresses: Object.values(os.networkInterfaces())
       .flat()
       .filter(i => i.family === 'IPv4' && !i.internal)
@@ -60,6 +66,12 @@ router.put('/', (req, res) => {
   if (jwtSecret) env.JWT_SECRET = jwtSecret
   if (keySalt) env.KEY_SALT = keySalt
   if (databasePath) env.DATABASE_PATH = databasePath
+  // HTTPS settings
+  if (req.body.httpsEnabled !== undefined) env.HTTPS_ENABLED = String(req.body.httpsEnabled)
+  if (req.body.httpsPort) env.HTTPS_PORT = String(req.body.httpsPort)
+  if (req.body.sslCertPath) env.SSL_CERT_PATH = req.body.sslCertPath
+  if (req.body.sslKeyPath) env.SSL_KEY_PATH = req.body.sslKeyPath
+  if (req.body.sslAutoGenerate !== undefined) env.SSL_AUTO_GENERATE = String(req.body.sslAutoGenerate)
 
   try {
     writeEnv(env)

@@ -172,6 +172,42 @@ tr:hover td{background:#f7f8fa}
           </div>
         </div>
 
+        <h3 style="margin-top:32px;font-size:18px;padding-bottom:8px;border-bottom:2px solid #eee">🔒 HTTPS Configuration</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+          <div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer">
+              <input type="checkbox" id="settHttpsEnabled" style="width:18px;height:18px;cursor:pointer">
+              Enable HTTPS
+            </label>
+            <small style="color:#888">Run HTTPS server alongside HTTP</small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">HTTPS Port</label>
+            <input type="number" id="settHttpsPort" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="4443">
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">SSL Certificate Path</label>
+            <input type="text" id="settSslCert" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="./certs/cert.pem">
+            <small style="color:#888">Path to PEM certificate file</small>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">SSL Key Path</label>
+            <input type="text" id="settSslKey" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="./certs/key.pem">
+            <small style="color:#888">Path to PEM private key file</small>
+          </div>
+
+          <div style="grid-column:1/3">
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer">
+              <input type="checkbox" id="settSslAutoGen" style="width:18px;height:18px;cursor:pointer" checked>
+              Auto-generate self-signed certificate
+            </label>
+            <small style="color:#888">Automatically creates a self-signed cert if none exists (requires OpenSSL). For production, use a proper CA-signed certificate.</small>
+          </div>
+        </div>
+
         <div style="display:flex;gap:12px;margin-top:32px;justify-content:flex-end">
           <button onclick="stopServer()" style="padding:10px 24px;background:#7f1d1d;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">⏹ Stop Server</button>
           <button onclick="restartServer()" style="padding:10px 24px;background:#e53e3e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">🔄 Restart Server</button>
@@ -373,11 +409,34 @@ async function loadSettings() {
     document.getElementById('jwtStatus').style.color = data.jwtSecretSet ? '#38a169' : '#e53e3e'
     document.getElementById('saltStatus').textContent = data.keySaltSet ? '(Configured)' : '(Using default — change this!)'
     document.getElementById('saltStatus').style.color = data.keySaltSet ? '#38a169' : '#e53e3e'
+    // HTTPS fields
+    document.getElementById('settHttpsEnabled').checked = data.httpsEnabled || false
+    document.getElementById('settHttpsPort').value = data.httpsPort || 4443
+    document.getElementById('settSslCert').value = data.sslCertPath || './certs/cert.pem'
+    document.getElementById('settSslKey').value = data.sslKeyPath || './certs/key.pem'
+    document.getElementById('settSslAutoGen').checked = data.sslAutoGenerate !== false
+    // Show HTTPS addresses if enabled
+    if (data.httpsEnabled && data.networkAddresses && data.networkAddresses.length > 0) {
+      document.getElementById('networkAddresses').innerHTML += data.networkAddresses.map(a =>
+        `<div style="margin:4px 0"><code style="background:#d1fae5;padding:2px 8px;border-radius:4px">https://${a.address}:${data.httpsPort || 4443}</code> <span style="color:#888">(${a.name})</span> 🔒</div>`
+      ).join('')
+    }
   } catch (e) { console.error(e) }
 }
 
 async function saveSettings() {
-  const body = { host: document.getElementById('settHost').value, port: document.getElementById('settPort').value, corsOrigins: document.getElementById('settCors').value, adminUsername: document.getElementById('settAdminUser').value, databasePath: document.getElementById('settDbPath').value }
+  const body = {
+    host: document.getElementById('settHost').value,
+    port: document.getElementById('settPort').value,
+    corsOrigins: document.getElementById('settCors').value,
+    adminUsername: document.getElementById('settAdminUser').value,
+    databasePath: document.getElementById('settDbPath').value,
+    httpsEnabled: document.getElementById('settHttpsEnabled').checked,
+    httpsPort: document.getElementById('settHttpsPort').value,
+    sslCertPath: document.getElementById('settSslCert').value,
+    sslKeyPath: document.getElementById('settSslKey').value,
+    sslAutoGenerate: document.getElementById('settSslAutoGen').checked,
+  }
   const pass = document.getElementById('settAdminPass').value
   if (pass) body.adminPassword = pass
   const jwt = document.getElementById('settJwtSecret').value
