@@ -77,4 +77,13 @@ router.post('/restart', (req, res) => {
   }, 500)
 })
 
+// POST /api/settings/shutdown — stop the server
+router.post('/shutdown', (req, res) => {
+  res.json({ success: true, message: 'Server shutting down...' })
+  setTimeout(() => {
+    console.log('\n  Server stopped by admin.\n')
+    process.exit(0)
+  }, 500)
+})
+
 module.exports = router

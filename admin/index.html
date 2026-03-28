@@ -173,8 +173,9 @@ tr:hover td{background:#f7f8fa}
         </div>
 
         <div style="display:flex;gap:12px;margin-top:32px;justify-content:flex-end">
-          <button onclick="restartServer()" style="padding:10px 24px;background:#e53e3e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Restart Server</button>
-          <button onclick="saveSettings()" style="padding:10px 24px;background:#667eea;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Save Settings</button>
+          <button onclick="stopServer()" style="padding:10px 24px;background:#7f1d1d;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">⏹ Stop Server</button>
+          <button onclick="restartServer()" style="padding:10px 24px;background:#e53e3e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">🔄 Restart Server</button>
+          <button onclick="saveSettings()" style="padding:10px 24px;background:#667eea;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">💾 Save Settings</button>
         </div>
 
         <div id="settingsMessage" style="margin-top:16px;padding:12px;border-radius:8px;display:none;font-size:14px"></div>
@@ -397,6 +398,21 @@ async function saveSettings() {
     }
     setTimeout(() => { msgEl.style.display = 'none' }, 5000)
   } catch (e) { alert('Error: ' + e.message) }
+}
+
+async function stopServer() {
+  if (!confirm('⚠️ STOP the license server?\n\nAll client apps will lose connection for license validation.\nYou will need to manually restart the server.')) return
+  if (!confirm('Are you sure? The server will shut down completely.')) return
+  try {
+    await fetch(API + '/settings/shutdown', { method: 'POST', headers: authHeaders() })
+    const msgEl = document.getElementById('settingsMessage')
+    msgEl.style.display = 'block'; msgEl.style.background = '#fee2e2'; msgEl.style.color = '#991b1b'
+    msgEl.textContent = '⏹ Server has been stopped. You will need to restart it manually.'
+  } catch (e) {
+    const msgEl = document.getElementById('settingsMessage')
+    msgEl.style.display = 'block'; msgEl.style.background = '#fee2e2'; msgEl.style.color = '#991b1b'
+    msgEl.textContent = '⏹ Server has been stopped.'
+  }
 }
 
 async function restartServer() {
