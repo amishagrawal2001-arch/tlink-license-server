@@ -286,7 +286,10 @@ async function loadKeys() {
         <td>${k.expiry_date}</td>
         <td>${k.max_machines}</td>
         <td><span class="badge ${k.status}">${k.status}</span></td>
-        <td>${k.status === 'active' ? `<button onclick="revokeKey(${k.id})" style="background:#e53e3e;color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px">Revoke</button>` : ''}</td>
+        <td style="white-space:nowrap">
+          ${k.status === 'active' ? `<button onclick="revokeKey(${k.id})" style="background:#e53e3e;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin-right:4px" title="Revoke key (disable but keep in records)">Revoke</button>` : ''}
+          <button onclick="deleteKeyPermanent(${k.id},'${k.key}')" style="background:#7f1d1d;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px" title="Permanently delete key and all activations">Delete</button>
+        </td>
       </tr>
     `).join('')
   } catch (e) { console.error(e) }
@@ -403,9 +406,20 @@ async function restartServer() {
 }
 
 async function revokeKey(id) {
-  if (!confirm('Revoke this license key?')) return
+  if (!confirm('Revoke this license key? The key will be disabled but kept in records.')) return
   try {
     await fetch(API + '/keys/' + id, { method: 'DELETE', headers: authHeaders() })
+    loadKeys()
+    loadStats()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+async function deleteKeyPermanent(id, key) {
+  if (!confirm('⚠️ PERMANENTLY DELETE this license key?\n\nKey: ' + key + '\n\nThis will remove the key and ALL its activations from the database. This action CANNOT be undone!')) return
+  if (!confirm('Are you absolutely sure? This is irreversible.')) return
+  try {
+    const res = await fetch(API + '/keys/' + id + '/permanent', { method: 'DELETE', headers: authHeaders() })
+    if (!res.ok) { const err = await res.json(); alert('Error: ' + (err.error || 'Delete failed')); return }
     loadKeys()
     loadStats()
   } catch (e) { alert('Error: ' + e.message) }

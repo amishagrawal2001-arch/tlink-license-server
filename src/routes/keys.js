@@ -67,6 +67,19 @@ router.delete('/:id', (req, res) => {
   res.json({ success: true, message: 'Key revoked' })
 })
 
+// Permanent delete — removes key and all activations from database
+router.delete('/:id/permanent', (req, res) => {
+  const id = parseInt(req.params.id)
+  const key = db.findOne('license_keys', k => k.id === id)
+  if (!key) return res.status(404).json({ error: 'Key not found' })
+  // Delete all activations for this key
+  db.deleteWhere('activations', a => a.key_id === id)
+  // Delete the key itself
+  const result = db.delete('license_keys', id)
+  if (result.changes === 0) return res.status(404).json({ error: 'Key not found' })
+  res.json({ success: true, message: 'Key permanently deleted' })
+})
+
 router.get('/:id/activations', (req, res) => {
   const activations = db.findAll('activations', a => a.key_id === parseInt(req.params.id))
   res.json({ activations })

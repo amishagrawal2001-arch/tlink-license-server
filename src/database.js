@@ -42,6 +42,21 @@ class JsonDB {
     return { changes: 1 }
   }
 
+  delete (table, id) {
+    const idx = this.data[table].findIndex(r => r.id === id)
+    if (idx === -1) return { changes: 0 }
+    this.data[table].splice(idx, 1)
+    this._save()
+    return { changes: 1 }
+  }
+
+  deleteWhere (table, predicate) {
+    const before = this.data[table].length
+    this.data[table] = this.data[table].filter(r => !predicate(r))
+    this._save()
+    return { changes: before - this.data[table].length }
+  }
+
   count (table, predicate) {
     return predicate ? this.data[table].filter(predicate).length : this.data[table].length
   }
