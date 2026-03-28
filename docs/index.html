@@ -996,6 +996,16 @@ li {
     <a href="#database-setup" class="sidebar-link">Database Setup</a>
     <a href="#cors-config" class="sidebar-link">CORS Configuration</a>
     <a href="#rate-limiting" class="sidebar-link">Rate Limiting</a>
+    <a href="#https-config" class="sidebar-link">HTTPS Configuration</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Process Management</div>
+    <a href="#process-problem" class="sidebar-link">The Problem</a>
+    <a href="#process-service" class="sidebar-link">System Service (Production)</a>
+    <a href="#process-pm2" class="sidebar-link">PM2 (Dev/Staging)</a>
+    <a href="#process-docker" class="sidebar-link">Docker (Any Platform)</a>
+    <a href="#process-comparison" class="sidebar-link">Method Comparison</a>
   </div>
 
   <div class="sidebar-section">
@@ -1544,6 +1554,76 @@ DATABASE_PATH=./data/licenses.db</pre></div>
     </tbody>
   </table>
   <p>Rate limit headers are returned in responses (<code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>, <code>RateLimit-Reset</code>).</p>
+</section>
+
+<!-- ────── HTTPS CONFIGURATION ────── -->
+<section id="https-config">
+  <h3>HTTPS Configuration</h3>
+
+  <h4>Enabling HTTPS</h4>
+  <p>HTTPS can be enabled through two methods:</p>
+  <ul>
+    <li><strong>Via Admin Dashboard:</strong> Navigate to <strong>Settings &rarr; Enable HTTPS &rarr; Save &rarr; Restart</strong></li>
+    <li><strong>Via <code>.env</code> file:</strong> Set <code>HTTPS_ENABLED=true</code> and optionally <code>HTTPS_PORT=4443</code></li>
+  </ul>
+
+  <p>When HTTPS is enabled, the server supports both auto-generated self-signed certificates (for development/testing) and CA-signed certificates (required for production).</p>
+
+  <h4>Environment Variables for HTTPS</h4>
+  <table>
+    <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>HTTPS_ENABLED</code></td><td><code>false</code></td><td>Enable HTTPS server</td></tr>
+      <tr><td><code>HTTPS_PORT</code></td><td><code>4443</code></td><td>HTTPS port</td></tr>
+      <tr><td><code>SSL_CERT_PATH</code></td><td><code>./certs/cert.pem</code></td><td>Path to SSL certificate</td></tr>
+      <tr><td><code>SSL_KEY_PATH</code></td><td><code>./certs/key.pem</code></td><td>Path to private key</td></tr>
+      <tr><td><code>SSL_CA_PATH</code></td><td>(empty)</td><td>Optional CA bundle path</td></tr>
+      <tr><td><code>SSL_AUTO_GENERATE</code></td><td><code>true</code></td><td>Auto-create self-signed certificate if none exists</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Self-Signed vs CA-Signed Certificates</h4>
+  <table>
+    <thead><tr><th>Type</th><th>Use Case</th><th>Browser Trust</th><th>Setup</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Self-Signed</strong></td><td>Development / Testing</td><td>Shows browser warning</td><td>Auto-generated when <code>SSL_AUTO_GENERATE=true</code></td></tr>
+      <tr><td><strong>CA-Signed (Let's Encrypt)</strong></td><td>Production</td><td>Trusted by all clients</td><td>Requires certbot setup</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box warning">
+    <span class="icon">&#9888;</span>
+    <div><strong>Production Requirement:</strong> Self-signed certificates are not suitable for production. Use a CA-signed certificate from Let's Encrypt or another trusted CA.</div>
+  </div>
+
+  <p>To set up Let's Encrypt certificates with certbot:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Install certbot</span>
+sudo apt install certbot
+
+<span class="tok-cmt"># Obtain a certificate for your domain</span>
+sudo certbot certonly --standalone -d license.yourdomain.com
+
+<span class="tok-cmt"># Certificates are saved to:</span>
+<span class="tok-cmt">#   /etc/letsencrypt/live/license.yourdomain.com/fullchain.pem</span>
+<span class="tok-cmt">#   /etc/letsencrypt/live/license.yourdomain.com/privkey.pem</span>
+
+<span class="tok-cmt"># Update .env to use CA-signed certs</span>
+HTTPS_ENABLED=<span class="tok-kw">true</span>
+HTTPS_PORT=<span class="tok-num">443</span>
+SSL_CERT_PATH=/etc/letsencrypt/live/license.yourdomain.com/fullchain.pem
+SSL_KEY_PATH=/etc/letsencrypt/live/license.yourdomain.com/privkey.pem
+SSL_AUTO_GENERATE=<span class="tok-kw">false</span>
+
+<span class="tok-cmt"># Set up auto-renewal (runs twice daily)</span>
+sudo certbot renew --dry-run</pre></div>
+  </div>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>Let's Encrypt certificates expire every 90 days. The <code>certbot renew</code> cron job handles automatic renewal. Restart the license server after renewal to pick up new certificates.</div>
+  </div>
 </section>
 
 <!-- ────── AUTHENTICATION ────── -->
@@ -3569,6 +3649,193 @@ done</pre></div>
   <div class="info-box note">
     <span class="icon">&#9432;</span>
     <div>For large bulk operations, consider adding a short delay between requests to avoid hitting rate limits (30 req/min for public routes, 100 req/min for admin routes).</div>
+  </div>
+</section>
+
+<!-- ────── PROCESS MANAGEMENT & AUTO-RESTART ────── -->
+<section id="process-problem">
+  <h2>Process Management &amp; Auto-Restart</h2>
+  <h3>The Problem</h3>
+  <p>Running the license server directly with <code>node src/index.js</code> has significant limitations:</p>
+  <ul>
+    <li>Using <strong>"Restart Server"</strong> from the admin dashboard stops the server permanently &mdash; there is no parent process to restart it.</li>
+    <li>If the server crashes, it stays down until manually restarted.</li>
+    <li>The server does not automatically start after a system reboot.</li>
+  </ul>
+  <div class="info-box warning">
+    <span class="icon">&#9888;</span>
+    <div><strong>Do not use <code>node src/index.js</code> directly in production.</strong> Use one of the process management solutions below to ensure the server automatically restarts after crashes, reboots, and dashboard-initiated restarts.</div>
+  </div>
+</section>
+
+<section id="process-service">
+  <h3>Solution 1: System Service (Production)</h3>
+  <p>Install the license server as a native system service for maximum reliability. Platform-specific install scripts are included in the repository.</p>
+
+  <table>
+    <thead><tr><th>Platform</th><th>Install Command</th><th>Service Manager</th><th>Auto-restart</th><th>Auto-boot</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Linux</strong></td><td><code>sudo bash install-linux.sh</code></td><td>systemd</td><td>Restart=always</td><td>Enabled</td></tr>
+      <tr><td><strong>macOS</strong></td><td><code>sudo bash install-mac.sh</code></td><td>launchd</td><td>KeepAlive</td><td>Enabled</td></tr>
+      <tr><td><strong>Windows</strong></td><td><code>install-win.bat</code> (as admin)</td><td>sc.exe</td><td>failure reset</td><td>Enabled</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Linux (systemd) Commands</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Start / Stop / Restart</span>
+sudo systemctl start tlink-license
+sudo systemctl stop tlink-license
+sudo systemctl restart tlink-license
+
+<span class="tok-cmt"># Check status</span>
+sudo systemctl status tlink-license
+
+<span class="tok-cmt"># View logs</span>
+journalctl -u tlink-license -f</pre></div>
+  </div>
+
+  <h4>macOS (launchd) Commands</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Load (start) the service</span>
+sudo launchctl load /Library/LaunchDaemons/com.tlink.license-server.plist
+
+<span class="tok-cmt"># Unload (stop) the service</span>
+sudo launchctl unload /Library/LaunchDaemons/com.tlink.license-server.plist
+
+<span class="tok-cmt"># Check if running</span>
+sudo launchctl list | grep tlink</pre></div>
+  </div>
+
+  <h4>Windows (sc.exe) Commands</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">powershell</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Start / Stop</span>
+sc.exe start TlinkLicenseServer
+sc.exe stop TlinkLicenseServer
+
+<span class="tok-cmt"># Check status</span>
+sc.exe query TlinkLicenseServer</pre></div>
+  </div>
+</section>
+
+<section id="process-pm2">
+  <h3>Solution 2: PM2 (Development/Staging)</h3>
+  <p>PM2 is a popular Node.js process manager that provides auto-restart, log management, and startup scripts.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Install PM2 globally</span>
+npm install -g pm2
+
+<span class="tok-cmt"># Start the license server</span>
+pm2 start src/index.js --name tlink-license
+
+<span class="tok-cmt"># Save the process list (for auto-start on reboot)</span>
+pm2 save
+
+<span class="tok-cmt"># Generate startup script (auto-start on boot)</span>
+pm2 startup
+
+<span class="tok-cmt"># View logs</span>
+pm2 logs
+
+<span class="tok-cmt"># Restart / Stop</span>
+pm2 restart tlink-license
+pm2 stop tlink-license</pre></div>
+  </div>
+
+  <p>For more control, create an <code>ecosystem.config.js</code> file in the project root:</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">javascript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre>module.exports = {
+  apps: [{
+    name: <span class="tok-str">'tlink-license'</span>,
+    script: <span class="tok-str">'src/index.js'</span>,
+    env: { NODE_ENV: <span class="tok-str">'production'</span> },
+    restart_delay: <span class="tok-num">1000</span>,
+    max_restarts: <span class="tok-num">10</span>,
+    autorestart: <span class="tok-kw">true</span>
+  }]
+}</pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Start using the ecosystem file</span>
+pm2 start ecosystem.config.js</pre></div>
+  </div>
+</section>
+
+<section id="process-docker">
+  <h3>Solution 3: Docker (Any Platform)</h3>
+  <p>Docker provides consistent deployments with built-in restart policies.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"><pre><span class="tok-cmt"># Start with auto-restart via docker-compose</span>
+docker-compose up -d    <span class="tok-cmt"># auto-restarts via restart: always</span></pre></div>
+  </div>
+
+  <div class="info-box note">
+    <span class="icon">&#9432;</span>
+    <div>The included <code>docker-compose.yml</code> already sets <code>restart: always</code>, ensuring the container restarts after crashes and system reboots.</div>
+  </div>
+</section>
+
+<section id="process-comparison">
+  <h3>Method Comparison</h3>
+  <table>
+    <thead>
+      <tr><th>Method</th><th>Best For</th><th>Auto-restart</th><th>Auto-boot</th><th>Dashboard Restart</th><th>Logs</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Direct (<code>node</code>)</strong></td>
+        <td>Quick testing</td>
+        <td>No</td>
+        <td>No</td>
+        <td>Stops permanently</td>
+        <td>stdout</td>
+      </tr>
+      <tr>
+        <td><strong>PM2</strong></td>
+        <td>Dev / Staging</td>
+        <td>Yes</td>
+        <td>Yes (with <code>pm2 startup</code>)</td>
+        <td>Yes</td>
+        <td><code>pm2 logs</code></td>
+      </tr>
+      <tr>
+        <td><strong>systemd</strong></td>
+        <td>Linux production</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td><code>journalctl</code></td>
+      </tr>
+      <tr>
+        <td><strong>launchd</strong></td>
+        <td>macOS production</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td><code>/tmp/tlink-license.log</code></td>
+      </tr>
+      <tr>
+        <td><strong>Docker</strong></td>
+        <td>Any production</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td><code>docker logs</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box success">
+    <span class="icon">&#10003;</span>
+    <div><strong>Recommendation:</strong> For production, use a system service (systemd/launchd) or Docker. For development and staging, PM2 offers the best balance of simplicity and features.</div>
   </div>
 </section>
 
