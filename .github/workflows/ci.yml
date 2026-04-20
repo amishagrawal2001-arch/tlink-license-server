@@ -48,20 +48,12 @@ jobs:
             -d '{"username":"admin","password":"admin123"}' | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).token))")
           echo "TOKEN=$TOKEN" >> $GITHUB_ENV
 
-      - name: Test key generation
+      - name: Test license activation (email+password)
         run: |
-          curl -sf http://localhost:4000/api/keys \
-            -H "Authorization: Bearer $TOKEN" \
+          # Seed creates trial@demo.com / demo1234 with a tyllink_terminal entitlement.
+          curl -sf http://localhost:4000/api/licenses/activate \
             -H "Content-Type: application/json" \
-            -d '{"appCode":"NO","tier":"pro","expiryDate":"2028-12-31","customerName":"CI Test","maxMachines":3}'
-
-      - name: Test license activation
-        run: |
-          KEY=$(curl -sf http://localhost:4000/api/keys \
-            -H "Authorization: Bearer $TOKEN" | node -e "process.stdin.on('data',d=>{const k=JSON.parse(d).keys[0];console.log(k.key)})")
-          curl -sf http://localhost:4000/api/license/activate \
-            -H "Content-Type: application/json" \
-            -d "{\"key\":\"$KEY\",\"machineId\":\"ci-test\",\"appCode\":\"NO\",\"appVersion\":\"1.0.0\",\"os\":\"linux\"}"
+            -d '{"email":"trial@demo.com","password":"demo1234","product_code":"tyllink_terminal","device_fingerprint_hash":"0000000000000000000000000000000000000000000000000000000000000001","platform":"linux","os_version":"ci","app_version":"1.0.0"}'
 
       - name: Test dashboard stats
         run: |

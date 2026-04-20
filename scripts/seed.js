@@ -1,7 +1,6 @@
 require('dotenv').config()
 const bcrypt = require('bcryptjs')
 const db = require('../src/database')
-const { generateKey } = require('../src/services/keyGenerator')
 
 console.log('\n  Seeding Tlink License Server...\n')
 
@@ -16,33 +15,111 @@ if (!db.findOne('admin_users', u => u.username === adminUsername)) {
   console.log(`  = Admin exists: ${adminUsername}`)
 }
 
-// 2. Register NetOps app
-if (!db.findOne('apps', a => a.app_code === 'NO')) {
-  db.insert('apps', { app_code: 'NO', app_name: 'Tlink NetOps' })
-  console.log('  + App: Tlink NetOps (NO)')
-} else {
-  console.log('  = App exists: Tlink NetOps (NO)')
-}
-
-const app = db.findOne('apps', a => a.app_code === 'NO')
-
-// 3. Sample keys
-const samples = [
-  { tier: 'pro', expiry: '2027-12-31', customer: 'Demo Pro User', email: 'pro@demo.com' },
-  { tier: 'enterprise', expiry: '2027-12-31', customer: 'Demo Enterprise', email: 'enterprise@demo.com' },
-  { tier: 'pro', expiry: '2025-01-01', customer: 'Expired Demo', email: 'expired@demo.com' },
+// 2. Register apps (keep legacy NO, add new product codes sent by clients)
+const apps = [
+  { app_code: 'NO', app_name: 'Tlink NetOps' },
+  { app_code: 'tyllink_terminal', app_name: 'Tyllink Terminal' },
+  { app_code: 'tyllink_studio', app_name: 'Tyllink Studio' },
 ]
-
-for (const s of samples) {
-  const gen = generateKey('NO', s.tier, s.expiry, s.customer)
-  if (!db.findOne('license_keys', k => k.customer_name === s.customer)) {
-    db.insert('license_keys', { key: gen.key, app_id: app.id, tier: s.tier, customer_name: s.customer, customer_email: s.email, expiry_date: s.expiry, max_machines: 3, status: 'active' })
-    console.log(`  + Key: ${gen.key} (${s.tier})`)
+for (const a of apps) {
+  if (!db.findOne('apps', x => x.app_code === a.app_code)) {
+    db.insert('apps', a)
+    console.log(`  + App: ${a.app_name} (${a.app_code})`)
   } else {
-    console.log(`  = Key exists for: ${s.customer}`)
+    console.log(`  = App exists: ${a.app_name} (${a.app_code})`)
   }
 }
 
-console.log(`\n  Done! Login: ${adminUsername} / ${adminPassword}`)
+// 3. Sample end-user accounts with entitlements
+const nextLicenseId = () => db.nextId('entitlements')
+
+const today = new Date().toISOString().slice(0, 10)
+const sampleUsers = [
+  {
+    email: 'trial@demo.com',
+    password: 'demo1234',
+    name: 'Demo Trial User',
+    entitlements: [
+      { product_code: 'tyllink_terminal', license_type: 'INDIVIDUAL', billing_type: 'TRIAL', start_date: today, expiry_date: '2027-12-31', max_devices: 1, status: 'active' },
+    ],
+  },
+  {
+    email: 'individual@demo.com',
+    password: 'demo1234',
+    name: 'Demo Individual',
+    entitlements: [
+      { product_code: 'tyllink_terminal', license_type: 'INDIVIDUAL', billing_type: 'PAID', start_date: today, expiry_date: '2027-12-31', max_devices: 3, status: 'active' },
+    ],
+  },
+  {
+    email: 'team@demo.com',
+    password: 'demo1234',
+    name: 'Demo Team',
+    entitlements: [
+      { product_code: 'tyllink_terminal', license_type: 'TEAM', billing_type: 'PAID', start_date: today, expiry_date: '2027-12-31', max_devices: 10, status: 'active' },
+      { product_code: 'tyllink_studio', license_type: 'TEAM', billing_type: 'PAID', start_date: today, expiry_date: '2027-12-31', max_devices: 10, status: 'active' },
+    ],
+  },
+  {
+    email: 'team-trial@demo.com',
+    password: 'demo1234',
+    name: 'Demo Team Trial',
+    entitlements: [
+      { product_code: 'tyllink_terminal', license_type: 'TEAM', billing_type: 'TRIAL', start_date: today, expiry_date: '2027-12-31', max_devices: 5, status: 'active' },
+    ],
+  },
+  {
+    email: 'expired@demo.com',
+    password: 'demo1234',
+    name: 'Expired Demo',
+    entitlements: [
+      { product_code: 'tyllink_terminal', license_type: 'INDIVIDUAL', billing_type: 'PAID', start_date: '2024-01-01', expiry_date: '2025-01-01', max_devices: 1, status: 'active' },
+    ],
+  },
+]
+
+for (const u of sampleUsers) {
+  if (!db.findOne('users', x => x.email === u.email)) {
+    db.insert('users', {
+      email: u.email,
+      password_hash: bcrypt.hashSync(u.password, 10),
+      name: u.name,
+      entitlements: u.entitlements.map(e => ({ id: nextLicenseId(), ...e })),
+    })
+    console.log(`  + User: ${u.email} (${u.entitlements.map(e => `${e.product_code}/${e.license_type}/${e.billing_type}`).join(', ')})`)
+  } else {
+    console.log(`  = User exists: ${u.email}`)
+  }
+}
+
+// 4. Sample team members — pool into team@demo.com's tyllink_terminal seats.
+// Done after the main loop so the owner's entitlement id is already assigned.
+const teamOwner = db.findOne('users', u => u.email === 'team@demo.com')
+const teamEnt = teamOwner && (teamOwner.entitlements || []).find(e => e.product_code === 'tyllink_terminal' && e.license_type === 'TEAM')
+if (teamEnt) {
+  const teamMembers = [
+    { email: 'alice@team.demo.com', name: 'Alice (team member)' },
+    { email: 'bob@team.demo.com', name: 'Bob (team member)' },
+  ]
+  for (const m of teamMembers) {
+    if (!db.findOne('users', x => x.email === m.email)) {
+      db.insert('users', {
+        email: m.email,
+        password_hash: bcrypt.hashSync('demo1234', 10),
+        name: m.name,
+        entitlements: [],
+        member_of_license_id: teamEnt.id,
+      })
+      console.log(`  + Team member: ${m.email} → team@demo.com/${teamEnt.product_code} (license id ${teamEnt.id})`)
+    } else {
+      console.log(`  = Team member exists: ${m.email}`)
+    }
+  }
+}
+
+console.log(`\n  Done! Admin login: ${adminUsername} / ${adminPassword}`)
+console.log('  Sample user logins (password demo1234):')
+console.log('    Owners:  trial@demo.com | individual@demo.com | team@demo.com | team-trial@demo.com')
+console.log('    Members: alice@team.demo.com | bob@team.demo.com (share team@demo.com\'s tyllink_terminal pool)')
 console.log('  Start: npm start')
 console.log('  Dashboard: http://localhost:4000/admin\n')

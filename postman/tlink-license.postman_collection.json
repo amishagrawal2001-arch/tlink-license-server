@@ -1,0 +1,442 @@
+{
+  "info": {
+    "name": "Tlink License Server",
+    "description": "Full API surface: admin auth, client license flows (activate/validate/heartbeat/deactivate/refresh), and admin CRUD (users, entitlements, activations, apps). Collection variables auto-populate from responses — run requests in order and IDs/tokens flow automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:4000", "type": "string" },
+    { "key": "admin_username", "value": "admin", "type": "string" },
+    { "key": "admin_password", "value": "admin123", "type": "string" },
+    { "key": "admin_token", "value": "", "type": "string" },
+    { "key": "user_email", "value": "niteen.adagen@gmail.com", "type": "string" },
+    { "key": "user_password", "value": "P@ssword1234", "type": "string" },
+    { "key": "product_code", "value": "tyllink_terminal", "type": "string" },
+    { "key": "device_fingerprint_hash", "value": "3c05f606ec35fb35e32fbdce88657b164056125a9ea4714812ca9a0f339b19a7", "type": "string" },
+    { "key": "platform", "value": "macos", "type": "string" },
+    { "key": "os_version", "value": "25.3.0", "type": "string" },
+    { "key": "app_version", "value": "1.0.2", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "refresh_token", "value": "", "type": "string" },
+    { "key": "device_id", "value": "", "type": "string" },
+    { "key": "license_id", "value": "", "type": "string" },
+    { "key": "user_id", "value": "", "type": "string" },
+    { "key": "entitlement_id", "value": "", "type": "string" },
+    { "key": "activation_id", "value": "", "type": "string" },
+    { "key": "app_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Admin Auth",
+      "item": [
+        {
+          "name": "Login (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.token) pm.collectionVariables.set('admin_token', r.token);",
+                  "pm.test('200 OK + token', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(r.token).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "License (client)",
+      "item": [
+        {
+          "name": "Activate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.access_token) pm.collectionVariables.set('access_token', r.access_token);",
+                  "if (r.refresh_token) pm.collectionVariables.set('refresh_token', r.refresh_token);",
+                  "if (r.device_id) pm.collectionVariables.set('device_id', r.device_id);",
+                  "if (r.license_id) pm.collectionVariables.set('license_id', r.license_id);",
+                  "pm.test('license_status VALID', () => pm.expect(r.license_status).to.eql('VALID'));",
+                  "pm.test('tokens present', () => {",
+                  "  pm.expect(r.access_token).to.be.a('string');",
+                  "  pm.expect(r.refresh_token).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/licenses/activate", "host": ["{{base_url}}"], "path": ["api", "licenses", "activate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"product_code\": \"{{product_code}}\",\n  \"device_fingerprint_hash\": \"{{device_fingerprint_hash}}\",\n  \"platform\": \"{{platform}}\",\n  \"os_version\": \"{{os_version}}\",\n  \"app_version\": \"{{app_version}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Validate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/licenses/validate", "host": ["{{base_url}}"], "path": ["api", "licenses", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_fingerprint_hash\": \"{{device_fingerprint_hash}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Heartbeat",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/licenses/heartbeat", "host": ["{{base_url}}"], "path": ["api", "licenses", "heartbeat"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"license_id\": \"{{license_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Heartbeat (with token rotation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.access_token) pm.collectionVariables.set('access_token', r.access_token);",
+                  "if (r.refresh_token) pm.collectionVariables.set('refresh_token', r.refresh_token);",
+                  "pm.test('status VALID', () => pm.expect(r.status).to.eql('VALID'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/licenses/heartbeat", "host": ["{{base_url}}"], "path": ["api", "licenses", "heartbeat"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"license_id\": \"{{license_id}}\",\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.access_token) pm.collectionVariables.set('access_token', r.access_token);",
+                  "if (r.refresh_token) pm.collectionVariables.set('refresh_token', r.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/licenses/refresh", "host": ["{{base_url}}"], "path": ["api", "licenses", "refresh"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\",\n  \"device_fingerprint_hash\": \"{{device_fingerprint_hash}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/licenses/deactivate", "host": ["{{base_url}}"], "path": ["api", "licenses", "deactivate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_fingerprint_hash\": \"{{device_fingerprint_hash}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Users",
+      "item": [
+        {
+          "name": "List users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.users && r.users.length) pm.collectionVariables.set('user_id', r.users[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/users?search=", "host": ["{{base_url}}"], "path": ["api", "users"], "query": [{ "key": "search", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.id) pm.collectionVariables.set('user_id', r.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/users", "host": ["{{base_url}}"], "path": ["api", "users"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new-user@example.com\",\n  \"password\": \"initial-pass\",\n  \"name\": \"New User\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get user",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "Update user (rename / reset password)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Renamed User\",\n  \"password\": \"new-pass\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Entitlements",
+      "item": [
+        {
+          "name": "Add entitlement",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.id) pm.collectionVariables.set('entitlement_id', r.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}/entitlements", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}", "entitlements"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_code\": \"{{product_code}}\",\n  \"license_type\": \"INDIVIDUAL\",\n  \"billing_type\": \"PAID\",\n  \"start_date\": \"2026-01-01\",\n  \"expiry_date\": \"2027-12-31\",\n  \"max_devices\": 3,\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update entitlement",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}/entitlements/{{entitlement_id}}", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}", "entitlements", "{{entitlement_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"max_devices\": 5,\n  \"billing_type\": \"TRIAL\",\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete entitlement",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}/entitlements/{{entitlement_id}}", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}", "entitlements", "{{entitlement_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Activations",
+      "item": [
+        {
+          "name": "List user activations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.activations && r.activations.length) pm.collectionVariables.set('activation_id', r.activations[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}/activations", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}", "activations"] }
+          }
+        },
+        {
+          "name": "Force-deactivate device",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}/activations/{{activation_id}}/deactivate", "host": ["{{base_url}}"], "path": ["api", "users", "{{user_id}}", "activations", "{{activation_id}}", "deactivate"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Apps",
+      "item": [
+        {
+          "name": "List apps",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.apps && r.apps.length) pm.collectionVariables.set('app_id', r.apps[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/apps", "host": ["{{base_url}}"], "path": ["api", "apps"] }
+          }
+        },
+        {
+          "name": "Register app",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.id) pm.collectionVariables.set('app_id', r.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/apps", "host": ["{{base_url}}"], "path": ["api", "apps"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_code\": \"tyllink_new\",\n  \"app_name\": \"Tyllink New Product\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update app (blocked_app_versions)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/apps/{{app_id}}", "host": ["{{base_url}}"], "path": ["api", "apps", "{{app_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_name\": \"Tyllink Terminal\",\n  \"blocked_app_versions\": [\"0.9.0\", \"1.0.0-beta\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete app",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/api/apps/{{app_id}}", "host": ["{{base_url}}"], "path": ["api", "apps", "{{app_id}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -66,7 +66,6 @@ if [ ! -f "${INSTALL_DIR}/.env" ]; then
         cat > "${INSTALL_DIR}/.env" <<'ENVEOF'
 PORT=4000
 JWT_SECRET=change-me-to-a-random-string
-KEY_SALT=change-me-to-another-random-string
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
 CORS_ORIGINS=http://localhost:*

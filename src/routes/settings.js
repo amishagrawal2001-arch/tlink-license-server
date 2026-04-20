@@ -39,7 +39,6 @@ router.get('/', (req, res) => {
     databasePath: env.DATABASE_PATH || './data/licenses.json',
     // Don't expose secrets fully
     jwtSecretSet: !!(env.JWT_SECRET && env.JWT_SECRET !== 'change-me-to-a-random-string'),
-    keySaltSet: !!(env.KEY_SALT && env.KEY_SALT !== 'change-me-to-another-random-string'),
     // HTTPS
     httpsEnabled: env.HTTPS_ENABLED === 'true',
     httpsPort: env.HTTPS_PORT || '4443',
@@ -55,7 +54,7 @@ router.get('/', (req, res) => {
 
 // PUT /api/settings — update settings (requires server restart)
 router.put('/', (req, res) => {
-  const { host, port, corsOrigins, adminUsername, adminPassword, jwtSecret, keySalt, databasePath } = req.body
+  const { host, port, corsOrigins, adminUsername, adminPassword, jwtSecret, databasePath } = req.body
   const env = parseEnv()
 
   if (host !== undefined) env.HOST = host
@@ -64,7 +63,6 @@ router.put('/', (req, res) => {
   if (adminUsername) env.ADMIN_USERNAME = adminUsername
   if (adminPassword) env.ADMIN_PASSWORD = adminPassword
   if (jwtSecret) env.JWT_SECRET = jwtSecret
-  if (keySalt) env.KEY_SALT = keySalt
   if (databasePath) env.DATABASE_PATH = databasePath
   // HTTPS settings
   if (req.body.httpsEnabled !== undefined) env.HTTPS_ENABLED = String(req.body.httpsEnabled)

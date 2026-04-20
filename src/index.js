@@ -28,8 +28,11 @@ app.use('/docs', express.static(path.join(__dirname, '..', 'docs')))
 
 // Routes
 app.use('/api/auth', publicLimiter, require('./routes/auth'))
+app.use('/api/licenses', publicLimiter, require('./routes/license'))
+// Deprecated: legacy mount for clients still pointing at /api/license/*.
 app.use('/api/license', publicLimiter, require('./routes/license'))
-app.use('/api/keys', adminLimiter, require('./routes/keys'))
+app.use('/api/users', adminLimiter, require('./routes/users'))
+app.use('/api/apps', adminLimiter, require('./routes/apps'))
 app.use('/api/dashboard', adminLimiter, require('./routes/dashboard'))
 app.use('/api/settings', adminLimiter, require('./routes/settings'))
 

@@ -1,11 +1,17 @@
 node_modules/
-data/*.db
+data/
 .env
 coverage/
 *.log
 .DS_Store
 dist/
-data/*.json
-data/.server.pid
 certs/
 logs/
+
+# RSA keypair for offline activation code signing — the private key must
+# never leave the server. data/ and offline-keys/ are per-install runtime
+# state and belong in backups, not source control.
+offline-keys/
+
+# Claude Code local session state
+.claude/

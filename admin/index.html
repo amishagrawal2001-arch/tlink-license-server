@@ -31,7 +31,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 table{width:100%;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);border-collapse:collapse}
 th{background:#f7f8fa;padding:12px 16px;text-align:left;font-size:13px;color:#666;border-bottom:1px solid #eee}
 td{padding:10px 16px;font-size:13px;border-bottom:1px solid #f0f0f0}
-tr:hover td{background:#f7f8fa}
+tbody tr:not(.user-detail-row):hover td{background:#f1f5f9}
 .badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase}
 .badge.active{background:#c6f6d5;color:#22543d}
 .badge.revoked{background:#fed7d7;color:#9b2c2c}
@@ -53,6 +53,103 @@ tr:hover td{background:#f7f8fa}
 .search-bar{display:flex;gap:12px;margin-bottom:16px}
 .search-bar input,.search-bar select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px}
 .search-bar input{flex:1}
+
+/* ───── User-table visibility enhancements ───── */
+/* Role chips next to email — scannable at-a-glance identity of each user. */
+.role-chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.role-chip.role-owner{background:#e0e7ff;color:#3730a3}
+.role-chip.role-member{background:#fef3c7;color:#92400e}
+.role-chip.role-individual{background:#dbeafe;color:#1e3a8a}
+.role-chip.role-trial{background:#fefcbf;color:#744210}
+.role-chip.role-expired{background:#fecaca;color:#991b1b}
+.role-chip.role-inactive{background:#e5e7eb;color:#4b5563}
+
+/* Seat-usage meter for TEAM entitlements. Inline so it fits next to the product badge. */
+.seat-meter{display:inline-flex;align-items:center;gap:6px;margin-left:6px;font-size:10px;color:#6b7280;vertical-align:middle}
+.seat-meter-bar{width:56px;height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden}
+.seat-meter-fill{height:100%;border-radius:3px;transition:width 0.2s}
+.seat-meter-fill.ok{background:#10b981}
+.seat-meter-fill.warn{background:#f59e0b}
+.seat-meter-fill.full{background:#ef4444}
+
+/* Row tints surface "this user needs attention" without reading every cell. */
+tbody tr.row-expiring td{background:#fffbeb !important}
+tbody tr.row-expired td{background:#fef2f2 !important}
+tbody tr.row-expiring:hover td{background:#fef3c7 !important}
+tbody tr.row-expired:hover td{background:#fee2e2 !important}
+
+/* Expanded detail row — distinct tint + colored left border so it reads as
+   "child of" the parent user row and doesn't collapse into the hover color. */
+tr.user-detail-row td{background:#eef2ff;padding:16px 20px;border-left:3px solid #667eea}
+tr.user-detail-row:hover td{background:#eef2ff}  /* don't re-tint on hover */
+
+/* When the parent row is expiring / expired, match the detail-row accent so
+   the admin sees the visual connection between the summary and its details. */
+tbody tr.row-expiring + tr.user-detail-row td{background:#fef9e7;border-left-color:#d97706}
+tbody tr.row-expired + tr.user-detail-row td{background:#fef2f2;border-left-color:#dc2626}
+
+/* Sub-blocks inside the detail row — white cards so the Entitlements / Team
+   Members / Active Devices tables visually pop against the tinted detail bg. */
+.detail-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
+.detail-card:last-child{margin-bottom:0}
+.detail-card h4{font-size:13px;color:#1e293b;margin:0 0 10px;letter-spacing:0.2px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.detail-card table{font-size:12px}
+.detail-card table th{background:#f1f5f9;color:#475569;font-size:11px;letter-spacing:0.3px;text-transform:uppercase;padding:8px 12px}
+.detail-card table td{padding:8px 12px;border-bottom:1px solid #f1f5f9}
+.detail-card table tr:last-child td{border-bottom:none}
+.detail-card table tr:hover td{background:#f8fafc}
+
+/* Quick-stats filter chips above the user table. */
+.user-stat-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:600;color:#475569;transition:all 0.15s;user-select:none}
+.user-stat-chip:hover{border-color:#94a3b8;background:#f8fafc}
+.user-stat-chip.active{background:#667eea;border-color:#667eea;color:#fff}
+.user-stat-chip .count{font-weight:700;font-size:13px}
+.user-stat-chip.active .count{color:#fff}
+.user-stat-chip:not(.active) .count{color:#1e293b}
+
+/* Sortable column arrows. */
+th[data-sort]{user-select:none;white-space:nowrap}
+th[data-sort]:hover{color:#667eea}
+.sort-arrow{font-size:10px;margin-left:3px;opacity:0.4}
+.sort-arrow.active{opacity:1;color:#667eea}
+
+/* ───── Dashboard triage widgets ───── */
+.triage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;padding:0 24px 16px}
+.triage-card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:20px;border-top:3px solid #cbd5e1}
+.triage-card.expiring{border-top-color:#f59e0b}
+.triage-card.saturated{border-top-color:#ef4444}
+.triage-card.dangling{border-top-color:#dc2626}
+.triage-card.inactive{border-top-color:#64748b}
+.triage-card-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.triage-card-title{font-size:13px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:8px}
+.triage-card-title .triage-icon{font-size:16px}
+.triage-card-count{font-size:24px;font-weight:700;color:#1e293b}
+.triage-card-count.zero{color:#94a3b8}
+.triage-preview{list-style:none;margin:0;padding:0;border-top:1px solid #f1f5f9}
+.triage-preview li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
+.triage-preview li:last-child{border-bottom:none}
+.triage-preview .tp-user{font-weight:600;color:#334155;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.triage-preview .tp-meta{color:#64748b;font-size:11px;white-space:nowrap}
+.triage-preview .tp-accent{font-weight:700}
+.triage-preview .tp-accent.urgent{color:#dc2626}
+.triage-preview .tp-accent.warn{color:#d97706}
+.triage-empty{text-align:center;color:#94a3b8;font-size:12px;padding:20px 0;font-style:italic}
+.triage-viewall{display:block;margin-top:12px;text-align:right;font-size:12px;font-weight:600;color:#667eea;cursor:pointer;user-select:none}
+.triage-viewall:hover{text-decoration:underline}
+
+/* Full-width recent activity feed at the bottom of the dashboard. */
+.activity-card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:20px;margin:0 24px 24px}
+.activity-card-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.activity-card-title{font-size:13px;font-weight:700;color:#1e293b}
+.activity-card-meta{font-size:11px;color:#64748b}
+.activity-list{list-style:none;margin:0;padding:0;max-height:420px;overflow-y:auto}
+.activity-list li{display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;padding:8px 4px;border-bottom:1px solid #f1f5f9;font-size:12px}
+.activity-list li:last-child{border-bottom:none}
+.activity-when{color:#64748b;font-size:11px;white-space:nowrap}
+.activity-body{color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.activity-body strong{color:#1e293b}
+.activity-source{font-size:10px;padding:2px 6px;border-radius:3px;background:#e0e7ff;color:#3730a3}
+.activity-source.offline{background:#fde68a;color:#92400e}
 </style>
 </head>
 <body>
@@ -82,32 +179,60 @@ tr:hover td{background:#f7f8fa}
   <!-- Tabs -->
   <div style="display:flex;gap:0;border-bottom:2px solid #e2e8f0;padding:0 24px;background:#fff">
     <button class="tab-btn active" onclick="switchTab('dashboard')" id="tabDashboard" style="padding:12px 24px;border:none;background:none;font-size:14px;font-weight:600;cursor:pointer;color:#667eea;border-bottom:2px solid #667eea;margin-bottom:-2px">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('users')" id="tabUsers" style="padding:12px 24px;border:none;background:none;font-size:14px;font-weight:600;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px">Users</button>
+    <button class="tab-btn" onclick="switchTab('apps')" id="tabApps" style="padding:12px 24px;border:none;background:none;font-size:14px;font-weight:600;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px">Apps</button>
     <button class="tab-btn" onclick="switchTab('settings')" id="tabSettings" style="padding:12px 24px;border:none;background:none;font-size:14px;font-weight:600;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px">Settings</button>
   </div>
 
   <!-- Dashboard Tab -->
   <div id="dashboardTab">
-  <div class="stats" id="statsGrid"></div>
+    <!-- Headline counts — unchanged; see loadStats(). -->
+    <div class="stats" id="statsGrid"></div>
 
-  <div class="section">
-    <h2>License Keys <button onclick="showGenerateModal()">+ Generate Key</button></h2>
-    <div class="search-bar">
-      <input type="text" id="searchCustomer" placeholder="Search customer..." onkeyup="loadKeys()">
-      <select id="filterTier" onchange="loadKeys()"><option value="">All Tiers</option><option value="pro">Pro</option><option value="enterprise">Enterprise</option></select>
-      <select id="filterStatus" onchange="loadKeys()"><option value="">All Status</option><option value="active">Active</option><option value="revoked">Revoked</option></select>
-    </div>
-    <table>
-      <div id="bulkActions" style="display:none;padding:10px 16px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;margin-bottom:10px;align-items:center;gap:12px">
-        <span id="selectedCount" style="font-weight:600;font-size:14px">0 selected</span>
-        <button onclick="bulkRevoke()" style="background:#e53e3e;color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">🔒 Revoke Selected</button>
-        <button onclick="bulkDelete()" style="background:#7f1d1d;color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">🗑 Delete Selected</button>
-        <button onclick="clearSelection()" style="background:#e2e8f0;color:#475569;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px">✕ Clear</button>
-      </div>
-      <thead><tr><th style="width:30px"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th><th>Key</th><th>App</th><th>Tier</th><th>Customer</th><th>Expiry</th><th>Machines</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="keysTable"></tbody>
-    </table>
-  </div>
+    <!-- Triage widgets: 2×2 grid of "needs attention" cards + full-width
+         recent-activity feed. Populated by loadTriage() on dashboard open. -->
+    <div class="triage-grid" id="triageGrid"></div>
+    <div class="activity-card" id="activityCard"></div>
   </div><!-- end dashboardTab -->
+
+  <!-- Users Tab -->
+  <div id="usersTab" style="display:none">
+    <div class="section" style="padding-top:24px">
+      <h2>Users <button onclick="showCreateUserModal()">+ Create User</button></h2>
+
+      <!-- Quick-stats filter bar. Each chip is click-to-filter; ALL resets. -->
+      <div id="userStatsBar" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"></div>
+
+      <div class="search-bar">
+        <input type="text" id="userSearch" placeholder="Search by email or name..." onkeyup="loadUsers()">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:28px"></th>
+            <th data-sort="email" style="cursor:pointer">Email <span class="sort-arrow" data-for="email"></span></th>
+            <th data-sort="name" style="cursor:pointer">Name <span class="sort-arrow" data-for="name"></span></th>
+            <th>Role &amp; entitlements</th>
+            <th data-sort="last_active_at" style="cursor:pointer">Last active <span class="sort-arrow" data-for="last_active_at"></span></th>
+            <th data-sort="created_at" style="cursor:pointer">Created <span class="sort-arrow" data-for="created_at"></span></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable"></tbody>
+      </table>
+    </div>
+  </div><!-- end usersTab -->
+
+  <!-- Apps Tab -->
+  <div id="appsTab" style="display:none">
+    <div class="section" style="padding-top:24px">
+      <h2>Apps <button onclick="showCreateAppModal()">+ Register App</button></h2>
+      <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Blocked Versions</th><th>Actions</th></tr></thead>
+        <tbody id="appsTable"></tbody>
+      </table>
+    </div>
+  </div><!-- end appsTab -->
 
   <!-- Settings Tab -->
   <div id="settingsTab" style="display:none;padding:24px">
@@ -158,12 +283,6 @@ tr:hover td{background:#f7f8fa}
             <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">JWT Secret</label>
             <input type="password" id="settJwtSecret" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="Leave blank to keep current">
             <small style="color:#888">Secret key for JWT token signing. <span id="jwtStatus" style="font-weight:600"></span></small>
-          </div>
-
-          <div>
-            <label style="display:block;font-size:13px;color:#666;margin-bottom:4px;font-weight:600">License Key Salt</label>
-            <input type="password" id="settKeySalt" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" placeholder="Leave blank to keep current">
-            <small style="color:#888">Salt for key checksum validation. <span id="saltStatus" style="font-weight:600"></span></small>
           </div>
 
           <div>
@@ -221,29 +340,103 @@ tr:hover td{background:#f7f8fa}
 
 </div><!-- end appView -->
 
-<!-- Generate Key Modal -->
-<div class="modal-overlay hidden" id="generateModal">
+<!-- Create User Modal -->
+<div class="modal-overlay hidden" id="userModal">
   <div class="modal">
-    <h3>Generate License Key</h3>
-    <label>Application</label>
-    <select id="genApp"></select>
-    <label>Tier</label>
-    <select id="genTier"><option value="pro">Professional</option><option value="enterprise">Enterprise</option></select>
-    <label>Expiry Date</label>
-    <input type="date" id="genExpiry">
-    <label>Customer Name</label>
-    <input type="text" id="genCustomer" placeholder="Customer name">
-    <label>Customer Email</label>
-    <input type="email" id="genEmail" placeholder="customer@example.com">
-    <label>Max Machines</label>
-    <input type="number" id="genMachines" value="1" min="1" max="100">
-    <div class="key-display hidden" id="generatedKeyDisplay">
-      <p style="font-size:13px;color:#888;margin-bottom:8px">Generated Key:</p>
-      <code id="generatedKey"></code>
-    </div>
+    <h3 id="userModalTitle">Create User</h3>
+    <input type="hidden" id="userModalId">
+    <label>Email</label>
+    <input type="email" id="userModalEmail" placeholder="user@example.com">
+    <label>Name</label>
+    <input type="text" id="userModalName" placeholder="Optional display name">
+    <label>Password <small style="color:#888" id="userModalPwHint">(required)</small></label>
+    <input type="password" id="userModalPassword" placeholder="Set a password">
+    <label style="margin-top:12px">Team membership <small style="color:#888">(optional — assigns this user to an existing TEAM entitlement)</small></label>
+    <select id="userModalTeam">
+      <option value="">— Not a team member —</option>
+    </select>
+    <small id="userModalTeamHint" style="color:#6b7280;font-size:11px;display:block;margin-top:4px">Members share the team owner's <code>max_devices</code> seat pool. Each member activates using their own email + password.</small>
     <div class="actions">
-      <button class="cancel" onclick="closeGenerateModal()">Close</button>
-      <button class="primary" onclick="generateKey()">Generate</button>
+      <button class="cancel" onclick="closeModal('userModal')">Cancel</button>
+      <button class="primary" onclick="saveUser()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Entitlement Modal -->
+<div class="modal-overlay hidden" id="entitlementModal">
+  <div class="modal">
+    <h3 id="entitlementModalTitle">Add Entitlement</h3>
+    <input type="hidden" id="entModalId">
+    <label>Product</label>
+    <select id="entModalProduct"></select>
+    <label>License Type</label>
+    <select id="entModalLicenseType"><option value="INDIVIDUAL">INDIVIDUAL</option><option value="TEAM">TEAM</option></select>
+    <label>Billing Type</label>
+    <select id="entModalBillingType"><option value="PAID">PAID</option><option value="TRIAL">TRIAL</option></select>
+    <label>Start Date</label>
+    <input type="date" id="entModalStart">
+    <label>Expiry Date</label>
+    <input type="date" id="entModalExpiry">
+    <label>Max Devices</label>
+    <input type="number" id="entModalMaxDevices" min="1" value="1">
+    <label>Status</label>
+    <select id="entModalStatus"><option value="active">active</option><option value="revoked">revoked</option></select>
+    <div class="actions">
+      <button class="cancel" onclick="closeModal('entitlementModal')">Cancel</button>
+      <button class="primary" onclick="saveEntitlement()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- App Modal -->
+<div class="modal-overlay hidden" id="appModal">
+  <div class="modal">
+    <h3 id="appModalTitle">Register App</h3>
+    <input type="hidden" id="appModalId">
+    <label>Product Code</label>
+    <input type="text" id="appModalCode" placeholder="e.g. tyllink_terminal">
+    <label>Display Name</label>
+    <input type="text" id="appModalName" placeholder="Tyllink Terminal">
+    <label>Blocked App Versions <small style="color:#888">(comma-separated)</small></label>
+    <input type="text" id="appModalBlocked" placeholder="0.9.0, 1.0.0-beta">
+    <div class="actions">
+      <button class="cancel" onclick="closeModal('appModal')">Cancel</button>
+      <button class="primary" onclick="saveApp()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline Code Modal -->
+<div class="modal-overlay hidden" id="offlineCodeModal">
+  <div class="modal" style="width:560px;max-width:95vw">
+    <h3>Offline Activation Code</h3>
+    <p style="font-size:12px;color:#6b7280;margin:-8px 0 12px">
+      Generates a signed token the user pastes into their client when HTTP/HTTPS to this server is blocked by a firewall or proxy.
+    </p>
+    <input type="hidden" id="offlineCodeUserId">
+    <input type="hidden" id="offlineCodeEntId">
+    <div id="offlineCodeMemberRow" style="display:none">
+      <label>Activate as <small style="color:#888">(who should this code be issued to?)</small></label>
+      <select id="offlineCodeMember"></select>
+      <small style="color:#6b7280;font-size:11px;display:block;margin-top:2px">TEAM entitlement — pick the team member whose laptop this code is for. The offline JWT and the server-side activation row will both be attributed to them.</small>
+    </div>
+    <label style="margin-top:12px">Valid for (days)</label>
+    <input type="number" id="offlineCodeDays" min="1" max="365" value="30">
+    <label>Bind to device fingerprint <span style="color:#dc2626">*</span> <small style="color:#888">(required — 64-char hex)</small></label>
+    <input type="text" id="offlineCodeFingerprint" placeholder="Ask the user to copy this from Settings → License → Device fingerprint" pattern="[a-fA-F0-9]{64}" required>
+    <small style="color:#6b7280;font-size:11px;display:block;margin-top:-4px">Consumes one seat from <code>max_devices</code> at mint time, tracked like any other activation.</small>
+
+    <div id="offlineCodeResult" style="display:none;margin-top:16px">
+      <label>Generated code <small style="color:#888">(share via secure channel)</small></label>
+      <textarea id="offlineCodeBlob" readonly rows="6" style="font-family:monospace;font-size:10px;resize:vertical"></textarea>
+      <div style="margin-top:6px;font-size:11px;color:#6b7280" id="offlineCodeMeta"></div>
+      <button style="margin-top:8px;background:#10b981;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px" onclick="copyOfflineCode()">Copy to clipboard</button>
+    </div>
+
+    <div class="actions">
+      <button class="cancel" onclick="closeModal('offlineCodeModal')">Close</button>
+      <button class="primary" onclick="generateOfflineCode()">Generate</button>
     </div>
   </div>
 </div>
@@ -286,11 +479,18 @@ function showApp() {
   document.getElementById('appView').style.display = 'block'
   document.getElementById('userDisplay').textContent = 'Admin'
   loadStats()
-  loadKeys()
-  loadApps()
 }
 
 function authHeaders() { return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } }
+
+// Escape user-controlled values before interpolating into innerHTML.
+// Also escapes attribute contexts safely (covers both ' and ").
+function esc(v) {
+  if (v === null || v === undefined) return ''
+  return String(v).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]))
+}
 
 async function loadStats() {
   try {
@@ -298,95 +498,865 @@ async function loadStats() {
     if (res.status === 401) return logout()
     const data = await res.json()
     document.getElementById('statsGrid').innerHTML = [
-      { v: data.totalKeys, l: 'Total Keys' },
-      { v: data.activeKeys, l: 'Active' },
-      { v: data.revokedKeys, l: 'Revoked' },
-      { v: data.expiredKeys, l: 'Expired' },
-      { v: data.totalActivations, l: 'Activations' },
-      { v: data.totalApps, l: 'Apps' },
+      { v: data.totalUsers ?? 0, l: 'Users' },
+      { v: data.totalEntitlements ?? 0, l: 'Entitlements' },
+      { v: data.totalActivations ?? 0, l: 'Activations' },
+      { v: data.totalApps ?? 0, l: 'Apps' },
     ].map(s => `<div class="stat-card"><div class="value">${s.v}</div><div class="label">${s.l}</div></div>`).join('')
   } catch (e) { console.error(e) }
+  // Fire triage load in parallel — dashboard paints progressively so each
+  // block shows up as soon as its request returns.
+  loadTriage()
 }
 
-async function loadKeys() {
-  const customer = document.getElementById('searchCustomer').value
-  const tier = document.getElementById('filterTier').value
-  const status = document.getElementById('filterStatus').value
-  const params = new URLSearchParams()
-  if (customer) params.set('customer', customer)
-  if (tier) params.set('tier', tier)
-  if (status) params.set('status', status)
+// ───────── Triage widgets (Dashboard) ─────────
+function daysUntil(isoDate) {
+  const then = new Date(isoDate).getTime()
+  const days = Math.ceil((then - Date.now()) / (24 * 60 * 60 * 1000))
+  return days
+}
+
+function renderTriageWidget(kind, title, icon, data, renderItem, emptyMsg, jumpFilter) {
+  const { total, preview } = data
+  const items = preview.length
+    ? `<ul class="triage-preview">${preview.map(renderItem).join('')}</ul>`
+    : `<div class="triage-empty">${esc(emptyMsg)}</div>`
+  // Only show "View all" when there are more rows than the preview AND we
+  // know which Users-tab filter to apply. Saturated has no matching filter
+  // chip so it renders without the jump — the preview is the full value.
+  const viewAll = (total > preview.length && jumpFilter)
+    ? `<span class="triage-viewall" data-filter="${jumpFilter}">View all ${total} →</span>`
+    : ''
+  return `
+    <div class="triage-card ${kind}">
+      <div class="triage-card-head">
+        <div class="triage-card-title"><span class="triage-icon">${icon}</span>${esc(title)}</div>
+        <div class="triage-card-count ${total === 0 ? 'zero' : ''}">${total}</div>
+      </div>
+      ${items}
+      ${viewAll}
+    </div>`
+}
+
+async function loadTriage() {
   try {
-    const res = await fetch(API + '/keys?' + params.toString(), { headers: authHeaders() })
+    const res = await fetch(API + '/dashboard/triage', { headers: authHeaders() })
     if (res.status === 401) return logout()
     const data = await res.json()
-    document.getElementById('keysTable').innerHTML = data.keys.map(k => `
-      <tr>
-        <td><input type="checkbox" class="key-checkbox" value="${k.id}" onchange="updateBulkBar()"></td>
-        <td><code style="font-size:12px">${k.key}</code></td>
-        <td>${k.app_name}</td>
-        <td><span class="badge ${k.tier}">${k.tier}</span></td>
-        <td>${k.customer_name || '—'}<br><small style="color:#888">${k.customer_email || ''}</small></td>
-        <td>${k.expiry_date}</td>
-        <td>${k.max_machines}</td>
-        <td><span class="badge ${k.status}">${k.status}</span></td>
-        <td style="white-space:nowrap">
-          ${k.status === 'active' ? `<button onclick="revokeKey(${k.id})" style="background:#e53e3e;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin-right:4px" title="Revoke key (disable but keep in records)">Revoke</button>` : ''}
-          <button onclick="deleteKeyPermanent(${k.id},'${k.key}')" style="background:#7f1d1d;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px" title="Permanently delete key and all activations">Delete</button>
-        </td>
-      </tr>
-    `).join('')
-    document.getElementById('selectAll').checked = false
-    updateBulkBar()
+    // Bail if the admin switched away from the Dashboard tab while the fetch
+    // was in flight — no point writing into a hidden panel (and risks
+    // overwriting a later, fresher fetch that landed first after a re-open).
+    if (document.getElementById('dashboardTab').style.display === 'none') return
+    const html = [
+      renderTriageWidget('expiring', 'Expiring soon', '⏰', data.expiringSoon,
+        (it) => {
+          const days = daysUntil(it.expiry_date)
+          const cls = days <= 7 ? 'urgent' : 'warn'
+          // "today" reads far more clearly than "0d" for a same-day expiry —
+          // "0d" scans as "already gone" to most admins.
+          const label = days <= 0 ? 'today' : `${days}d`
+          return `<li><span class="tp-user" title="${esc(it.user_email)} • ${esc(it.product_code)}">${esc(it.user_email)}</span>
+            <span class="tp-meta">${esc(it.product_code)} • <span class="tp-accent ${cls}">${label}</span></span></li>`
+        },
+        'Nothing expires in the next 30 days.', 'expiring'),
+      renderTriageWidget('saturated', 'Saturated seats', '🔴', data.saturated,
+        (it) => `<li><span class="tp-user" title="${esc(it.user_email)} • ${esc(it.product_code)}">${esc(it.user_email)}</span>
+          <span class="tp-meta">${esc(it.product_code)} • <span class="tp-accent urgent">${it.active_devices}/${it.max_devices}</span></span></li>`,
+        'No entitlement is at its device limit.', 'saturated'),
+      renderTriageWidget('dangling', 'Dangling team links', '⚠️', data.dangling,
+        (it) => `<li><span class="tp-user" title="${esc(it.user_email)}">${esc(it.user_email)}</span>
+          <span class="tp-meta">→ <span class="tp-accent urgent">#${esc(it.dangling_license_id)}</span> (missing)</span></li>`,
+        'All team memberships resolve cleanly.', 'dangling'),
+      renderTriageWidget('inactive', 'Inactive > 90 days', '💤', data.inactive,
+        (it) => `<li><span class="tp-user" title="${esc(it.user_email)}">${esc(it.user_email)}</span>
+          <span class="tp-meta">${it.last_active_at ? timeAgo(it.last_active_at) : '<span style="color:#94a3b8">never</span>'}</span></li>`,
+        'No stale accounts.', 'inactive'),
+    ].join('')
+    document.getElementById('triageGrid').innerHTML = html
+    // "View all →" jumps to Users tab with the matching filter chip active.
+    document.querySelectorAll('#triageGrid .triage-viewall').forEach(el => {
+      el.onclick = () => {
+        const f = el.dataset.filter
+        if (!f || f === 'null') return
+        userFilter = f
+        switchTab('users')
+      }
+    })
+    renderActivityCard(data.recentActivity || [])
   } catch (e) { console.error(e) }
 }
 
-async function loadApps() {
-  try {
-    const res = await fetch(API + '/keys/apps/list', { headers: authHeaders() })
-    const data = await res.json()
-    document.getElementById('genApp').innerHTML = data.apps.map(a => `<option value="${a.app_code}">${a.app_name} (${a.app_code})</option>`).join('')
-  } catch (e) { console.error(e) }
-}
-
-function showGenerateModal() {
-  document.getElementById('generateModal').classList.remove('hidden')
-  document.getElementById('generatedKeyDisplay').classList.add('hidden')
-  const d = new Date(); d.setFullYear(d.getFullYear() + 1)
-  document.getElementById('genExpiry').value = d.toISOString().split('T')[0]
-}
-
-function closeGenerateModal() { document.getElementById('generateModal').classList.add('hidden') }
-
-async function generateKey() {
-  const body = {
-    appCode: document.getElementById('genApp').value,
-    tier: document.getElementById('genTier').value,
-    expiryDate: document.getElementById('genExpiry').value,
-    customerName: document.getElementById('genCustomer').value,
-    customerEmail: document.getElementById('genEmail').value,
-    maxMachines: parseInt(document.getElementById('genMachines').value),
-  }
-  try {
-    const res = await fetch(API + '/keys', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error)
-    document.getElementById('generatedKey').textContent = data.key
-    document.getElementById('generatedKeyDisplay').classList.remove('hidden')
-    loadKeys()
-    loadStats()
-  } catch (e) { alert('Error: ' + e.message) }
+function renderActivityCard(items) {
+  const rows = items.length
+    ? items.map(a => {
+        const when = a.last_seen_at ? timeAgo(a.last_seen_at) : '—'
+        const who = esc(a.user_email || '(unknown)')
+        const product = esc(a.product_code || '')
+        const platform = a.platform ? ` <span style="color:#94a3b8">(${esc(a.platform)}${a.app_version ? ' ' + esc(a.app_version) : ''})</span>` : ''
+        const source = a.activation_source === 'offline'
+          ? '<span class="activity-source offline">offline</span>'
+          : '<span class="activity-source">online</span>'
+        return `<li>
+          <span class="activity-when">${when}</span>
+          <span class="activity-body"><strong>${who}</strong> • ${product}${platform}</span>
+          ${source}
+        </li>`
+      }).join('')
+    : '<li style="color:#94a3b8;font-style:italic">No activation activity yet.</li>'
+  document.getElementById('activityCard').innerHTML = `
+    <div class="activity-card-head">
+      <div class="activity-card-title">Recent activity</div>
+      <div class="activity-card-meta">Last ${items.length} ${items.length === 1 ? 'event' : 'events'} across all users</div>
+    </div>
+    <ul class="activity-list">${rows}</ul>`
 }
 
 function switchTab(tab) {
-  document.getElementById('dashboardTab').style.display = tab === 'dashboard' ? 'block' : 'none'
-  document.getElementById('settingsTab').style.display = tab === 'settings' ? 'block' : 'none'
-  document.getElementById('tabDashboard').style.color = tab === 'dashboard' ? '#667eea' : '#888'
-  document.getElementById('tabDashboard').style.borderBottomColor = tab === 'dashboard' ? '#667eea' : 'transparent'
-  document.getElementById('tabSettings').style.color = tab === 'settings' ? '#667eea' : '#888'
-  document.getElementById('tabSettings').style.borderBottomColor = tab === 'settings' ? '#667eea' : 'transparent'
+  const tabs = ['dashboard', 'users', 'apps', 'settings']
+  for (const t of tabs) {
+    document.getElementById(t + 'Tab').style.display = tab === t ? 'block' : 'none'
+    const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1))
+    if (btn) {
+      btn.style.color = tab === t ? '#667eea' : '#888'
+      btn.style.borderBottomColor = tab === t ? '#667eea' : 'transparent'
+    }
+  }
   if (tab === 'settings') loadSettings()
+  if (tab === 'users') loadUsers()
+  if (tab === 'apps') loadAppsList()
 }
+
+// ───────── Users tab ─────────
+let appsCache = []
+let usersCache = []                    // last loaded users with their entitlements
+const expandedUsers = new Set()        // user ids whose detail row is open
+const activationsCache = new Map()     // user id -> activations array (lazy-loaded on expand)
+// Context for the entitlement modal so it knows which user to POST against.
+let entitlementContextUserId = null
+
+// Active filter chip (null = no filter). Current sort state.
+let userFilter = null
+let userSort = { col: 'created_at', dir: 'desc' }
+
+// Classify a user into the set of roles + status flags the stats bar / row chips use.
+// Returns an object the renderer and filter can both consume without recomputing.
+function classifyUser(u) {
+  const ents = u.entitlements || []
+  const isOwner = ents.some(e => e.license_type === 'TEAM')
+  const isMember = !!u.member_of_license_id && !(u.team_membership && u.team_membership.dangling)
+  const hasIndividual = ents.some(e => e.license_type === 'INDIVIDUAL')
+  const hasTrial = ents.some(e => e.billing_type === 'TRIAL')
+  const today = new Date().toISOString().slice(0, 10)
+  // An entitlement is "expired" when its expiry_date is in the past.
+  const activeEnts = ents.filter(e => e.status !== 'revoked' && (!e.expiry_date || e.expiry_date >= today))
+  const allExpired = ents.length > 0 && activeEnts.length === 0
+  // An entitlement is "expiring soon" when <= 30 days until expiry_date.
+  const soonCutoff = new Date(); soonCutoff.setDate(soonCutoff.getDate() + 30)
+  const soonCutoffStr = soonCutoff.toISOString().slice(0, 10)
+  const expiringSoon = activeEnts.some(e => e.expiry_date && e.expiry_date <= soonCutoffStr)
+  // "Inactive" = user has never appeared on any activation.
+  const isInactive = !u.last_active_at
+  // "Saturated" = user owns an entitlement whose seat pool is at or over
+  // max_devices. For TEAM entitlements the pool is shared; for INDIVIDUAL
+  // it's per-user. Either way, `active_devices >= max_devices` is the signal.
+  const isSaturated = ents.some(e => (e.active_devices || 0) >= (e.max_devices || 1) && (e.max_devices || 1) > 0)
+  return { isOwner, isMember, hasIndividual, hasTrial, allExpired, expiringSoon, isInactive, isSaturated, isDangling: !!(u.team_membership && u.team_membership.dangling) }
+}
+
+// Format ISO timestamp as "2h ago" / "3d ago" / "—". Keeps the column narrow.
+function timeAgo(iso) {
+  if (!iso) return '<span style="color:#aaa">never</span>'
+  const then = new Date(iso).getTime()
+  if (isNaN(then)) return '<span style="color:#aaa">—</span>'
+  const secs = Math.max(0, Math.floor((Date.now() - then) / 1000))
+  if (secs < 60) return `${secs}s ago`
+  const mins = Math.floor(secs / 60)
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days < 30) return `${days}d ago`
+  const months = Math.floor(days / 30)
+  if (months < 12) return `${months}mo ago`
+  return `${Math.floor(days / 365)}y ago`
+}
+
+async function loadUsers() {
+  const q = (document.getElementById('userSearch').value || '').trim()
+  const params = q ? '?search=' + encodeURIComponent(q) : ''
+  try {
+    const res = await fetch(API + '/users' + params, { headers: authHeaders() })
+    if (res.status === 401) return logout()
+    const data = await res.json()
+    usersCache = data.users
+    renderUsers()
+  } catch (e) { console.error(e) }
+}
+
+function renderStatsBar() {
+  const counts = { all: usersCache.length, owners: 0, members: 0, individuals: 0, trial: 0, expired: 0, expiring: 0, saturated: 0, inactive: 0, dangling: 0 }
+  for (const u of usersCache) {
+    const c = classifyUser(u)
+    if (c.isOwner) counts.owners++
+    if (c.isMember) counts.members++
+    if (c.hasIndividual) counts.individuals++
+    if (c.hasTrial) counts.trial++
+    if (c.allExpired) counts.expired++
+    if (c.expiringSoon) counts.expiring++
+    if (c.isSaturated) counts.saturated++
+    if (c.isInactive) counts.inactive++
+    if (c.isDangling) counts.dangling++
+  }
+  // Chips show up in the order an admin usually triages: broad → specific → problems.
+  const chips = [
+    { key: 'all',        label: 'All',           count: counts.all },
+    { key: 'owners',     label: 'Team owners',   count: counts.owners },
+    { key: 'members',    label: 'Team members',  count: counts.members },
+    { key: 'individuals',label: 'Individual',    count: counts.individuals },
+    { key: 'trial',      label: 'Trial',         count: counts.trial },
+    { key: 'expiring',   label: 'Expiring < 30d',count: counts.expiring },
+    { key: 'expired',    label: 'Expired',       count: counts.expired },
+    { key: 'saturated',  label: 'Saturated seats',count: counts.saturated },
+    { key: 'inactive',   label: 'Inactive',      count: counts.inactive },
+    { key: 'dangling',   label: 'Dangling link', count: counts.dangling },
+  ]
+  const activeKey = userFilter || 'all'
+  document.getElementById('userStatsBar').innerHTML = chips.map(c =>
+    `<span class="user-stat-chip ${activeKey === c.key ? 'active' : ''}" data-filter="${c.key}">${esc(c.label)} <span class="count">${c.count}</span></span>`
+  ).join('')
+  document.querySelectorAll('#userStatsBar .user-stat-chip').forEach(el => {
+    el.onclick = () => { userFilter = el.dataset.filter === 'all' ? null : el.dataset.filter; renderUsers() }
+  })
+}
+
+function matchesFilter(c) {
+  if (!userFilter) return true
+  switch (userFilter) {
+    case 'owners':      return c.isOwner
+    case 'members':     return c.isMember
+    case 'individuals': return c.hasIndividual
+    case 'trial':       return c.hasTrial
+    case 'expiring':    return c.expiringSoon
+    case 'expired':     return c.allExpired
+    case 'saturated':   return c.isSaturated
+    case 'inactive':    return c.isInactive
+    case 'dangling':    return c.isDangling
+    default:            return true
+  }
+}
+
+function sortedUsers() {
+  const col = userSort.col
+  const dir = userSort.dir === 'asc' ? 1 : -1
+  const pick = (u) => {
+    if (col === 'email') return (u.email || '').toLowerCase()
+    if (col === 'name') return (u.name || '').toLowerCase()
+    if (col === 'last_active_at') return u.last_active_at || ''  // empty sorts to the bottom on desc
+    return u.created_at || ''
+  }
+  return [...usersCache].sort((a, b) => {
+    const av = pick(a), bv = pick(b)
+    if (av < bv) return -1 * dir
+    if (av > bv) return 1 * dir
+    return 0
+  })
+}
+
+function renderSortArrows() {
+  document.querySelectorAll('.sort-arrow').forEach(el => {
+    const col = el.dataset.for
+    if (col === userSort.col) {
+      el.textContent = userSort.dir === 'asc' ? '▲' : '▼'
+      el.classList.add('active')
+    } else {
+      el.textContent = '▲▼'
+      el.classList.remove('active')
+    }
+  })
+}
+
+// Derive a primary "role chip" label for a user. Shown inline with email —
+// pick the most meaningful category (in priority order).
+function roleChipFor(u, c) {
+  if (c.allExpired) return { label: 'Expired', cls: 'role-expired' }
+  if (c.isDangling) return { label: 'Dangling', cls: 'role-expired' }
+  if (c.isOwner) return { label: 'Team owner', cls: 'role-owner' }
+  if (c.isMember) return { label: 'Team member', cls: 'role-member' }
+  if (c.hasTrial && !c.hasIndividual) return { label: 'Trial', cls: 'role-trial' }
+  if (c.hasIndividual) return { label: 'Individual', cls: 'role-individual' }
+  if (c.isInactive) return { label: 'Inactive', cls: 'role-inactive' }
+  return null
+}
+
+// Compact inline seat-usage meter for a TEAM entitlement. ≥90% full renders
+// red, ≥70% amber, otherwise green.
+function seatMeter(e) {
+  const max = e.max_devices || 1
+  const used = e.active_devices || 0
+  const pct = Math.min(100, Math.round((used / max) * 100))
+  const cls = pct >= 90 ? 'full' : pct >= 70 ? 'warn' : 'ok'
+  return `<span class="seat-meter" title="${used} of ${max} seats used"><span class="seat-meter-bar"><span class="seat-meter-fill ${cls}" style="width:${pct}%"></span></span>${used}/${max}</span>`
+}
+
+function renderUsers() {
+  renderStatsBar()
+  renderSortArrows()
+  const ordered = sortedUsers()
+  const rows = ordered.map(u => {
+    const c = classifyUser(u)
+    if (!matchesFilter(c)) return ''
+    const isOpen = expandedUsers.has(u.id)
+    const ownedBadges = (u.entitlements || []).map(e => {
+      const memberSuffix = e.license_type === 'TEAM' && typeof e.member_count === 'number'
+        ? ` · ${e.member_count} member${e.member_count === 1 ? '' : 's'}`
+        : ''
+      const meter = e.license_type === 'TEAM' ? seatMeter(e) : ''
+      return `<span class="badge" style="background:#eef2ff;color:#3730a3;margin-right:4px" title="${esc(e.license_type)}/${esc(e.billing_type)} — expires ${esc(e.expiry_date)}">${esc(e.product_code)}${memberSuffix}</span>${meter}`
+    })
+    if (u.team_membership) {
+      const t = u.team_membership
+      if (t.dangling) {
+        ownedBadges.push(`<span class="badge" style="background:#fee2e2;color:#991b1b;margin-right:4px" title="Points at license id ${esc(t.license_id)} which no longer exists">⚠ Dangling team link</span>`)
+      } else {
+        ownedBadges.push(`<span class="badge" style="background:#fef3c7;color:#92400e;margin-right:4px" title="Member of team owned by ${esc(t.owner_email)}">Member of ${esc(t.owner_email)} · ${esc(t.product_code)}</span>`)
+      }
+    }
+    const entSummary = ownedBadges.length ? ownedBadges.join('') : '<span style="color:#aaa">none</span>'
+    const chip = roleChipFor(u, c)
+    const chipHtml = chip ? `<span class="role-chip ${chip.cls}">${esc(chip.label)}</span>` : ''
+    // Tint the whole row when action is needed (expired wins over expiring).
+    const rowClass = c.allExpired || c.isDangling ? 'row-expired' : (c.expiringSoon ? 'row-expiring' : '')
+    const lastActiveHtml = u.last_active_at
+      ? `<span title="${esc(u.last_active_at.replace('T',' ').slice(0,16))}">${timeAgo(u.last_active_at)}</span>`
+      : '<span style="color:#aaa" title="No activations on record">never</span>'
+    const mainRow = `<tr class="${rowClass}" style="cursor:pointer">
+        <td data-action="toggle" data-id="${u.id}" style="text-align:center;color:#667eea;font-size:14px">
+          <i class="fas fa-chevron-${isOpen ? 'down' : 'right'}"></i>
+        </td>
+        <td data-action="toggle" data-id="${u.id}"><strong>${esc(u.email)}</strong>${chipHtml}</td>
+        <td data-action="toggle" data-id="${u.id}">${esc(u.name) || '—'}</td>
+        <td data-action="toggle" data-id="${u.id}">${entSummary}</td>
+        <td data-action="toggle" data-id="${u.id}" style="color:#4b5563;font-size:12px;white-space:nowrap">${lastActiveHtml}</td>
+        <td data-action="toggle" data-id="${u.id}" style="color:#888;font-size:12px">${esc((u.created_at || '').slice(0,10))}</td>
+        <td style="white-space:nowrap">
+          <button data-action="user-edit" data-id="${u.id}" style="background:#64748b;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin-right:4px">Edit</button>
+          <button data-action="user-delete" data-id="${u.id}" data-email="${esc(u.email)}" style="background:#e53e3e;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">Delete</button>
+        </td>
+      </tr>`
+    const detailRow = isOpen ? `<tr class="user-detail-row">
+        <td></td>
+        <td colspan="6">
+          ${renderEntitlementsInline(u)}
+          ${renderActivationsInline(u.id)}
+        </td>
+      </tr>` : ''
+    return mainRow + detailRow
+  }).join('')
+
+  document.getElementById('usersTable').innerHTML = rows || `<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">No users match this filter.</td></tr>`
+
+  // Wire sort-header clicks every render (table body was replaced; headers live
+  // above, but binding here keeps the wiring in one place regardless of re-mount).
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.onclick = () => {
+      const col = th.dataset.sort
+      if (userSort.col === col) userSort.dir = userSort.dir === 'asc' ? 'desc' : 'asc'
+      else { userSort.col = col; userSort.dir = col === 'last_active_at' || col === 'created_at' ? 'desc' : 'asc' }
+      renderUsers()
+    }
+  })
+
+  document.querySelectorAll('#usersTable [data-action]').forEach(el => {
+    const id = parseInt(el.dataset.id)
+    switch (el.dataset.action) {
+      case 'toggle': el.onclick = (ev) => { ev.stopPropagation(); toggleUserRow(id) }; break
+      case 'user-edit': el.onclick = (ev) => { ev.stopPropagation(); showEditUserModal(id) }; break
+      case 'user-delete': el.onclick = (ev) => { ev.stopPropagation(); deleteUser(id, el.dataset.email) }; break
+      case 'ent-edit': el.onclick = (ev) => { ev.stopPropagation(); showEntitlementModal(parseInt(el.dataset.userId), parseInt(el.dataset.entId)) }; break
+      case 'ent-delete': el.onclick = (ev) => { ev.stopPropagation(); deleteEntitlement(parseInt(el.dataset.userId), parseInt(el.dataset.entId)) }; break
+      case 'ent-add': el.onclick = (ev) => { ev.stopPropagation(); showEntitlementModal(parseInt(el.dataset.userId), null) }; break
+      case 'ent-offline': el.onclick = (ev) => { ev.stopPropagation(); showOfflineCodeModal(parseInt(el.dataset.userId), parseInt(el.dataset.entId)) }; break
+      case 'act-deactivate': el.onclick = (ev) => { ev.stopPropagation(); forceDeactivate(parseInt(el.dataset.userId), parseInt(el.dataset.actId)) }; break
+      case 'member-unlink': el.onclick = (ev) => { ev.stopPropagation(); unlinkTeamMember(parseInt(el.dataset.userId)) }; break
+    }
+  })
+}
+
+function renderEntitlementsInline(u) {
+  const ents = u.entitlements || []
+  const rows = ents.length ? ents.map(e => {
+    const memberChip = e.license_type === 'TEAM'
+      ? ` <span class="badge" style="background:#fef3c7;color:#92400e;font-size:10px">${e.member_count || 0} member${(e.member_count || 0) === 1 ? '' : 's'}</span>`
+      : ''
+    return `
+    <tr>
+      <td><code>${esc(e.product_code)}</code></td>
+      <td><span class="badge" style="background:#e0e7ff;color:#3730a3">${esc(e.license_type)}</span>${memberChip}</td>
+      <td><span class="badge" style="background:${e.billing_type === 'TRIAL' ? '#fefcbf;color:#744210' : '#c6f6d5;color:#22543d'}">${esc(e.billing_type)}</span></td>
+      <td>${esc(e.start_date) || '—'}</td>
+      <td>${esc(e.expiry_date) || '—'}</td>
+      <td>${esc(e.active_devices || 0)}/${esc(e.max_devices)}</td>
+      <td><span class="badge ${esc(e.status)}">${esc(e.status)}</span></td>
+      <td style="white-space:nowrap">
+        <button data-action="ent-edit" data-user-id="${u.id}" data-ent-id="${e.id}" style="background:#64748b;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;margin-right:2px">Edit</button>
+        <button data-action="ent-offline" data-user-id="${u.id}" data-ent-id="${e.id}" title="Generate offline activation code" style="background:#0ea5e9;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;margin-right:2px">Offline code</button>
+        <button data-action="ent-delete" data-user-id="${u.id}" data-ent-id="${e.id}" style="background:#e53e3e;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px">×</button>
+      </td>
+    </tr>`
+  }).join('') : '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:16px">No entitlements</td></tr>'
+
+  // Team-member list — only shown when this user owns at least one TEAM
+  // entitlement that has members. Each row lets the admin jump to the
+  // member's user record or remove them from the team.
+  const ownedTeamIds = new Set(ents.filter(e => e.license_type === 'TEAM').map(e => e.id))
+  const members = ownedTeamIds.size
+    ? usersCache.filter(x => x.member_of_license_id && ownedTeamIds.has(x.member_of_license_id))
+    : []
+  const membersBlock = ownedTeamIds.size ? (() => {
+    const memberRows = members.length
+      ? members.map(m => {
+          const ent = ents.find(e => e.id === m.member_of_license_id)
+          return `
+            <tr>
+              <td><strong>${esc(m.email)}</strong>${m.name ? ` <span style="color:#888;font-size:11px">(${esc(m.name)})</span>` : ''}</td>
+              <td><code>${esc(ent ? ent.product_code : '?')}</code></td>
+              <td style="color:#888;font-size:11px">${esc((m.created_at || '').slice(0,10))}</td>
+              <td style="white-space:nowrap">
+                <button data-action="member-unlink" data-user-id="${m.id}" style="background:#e53e3e;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px">Remove from team</button>
+              </td>
+            </tr>`
+        }).join('')
+      : '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:12px">No team members yet — create a user and set their team membership.</td></tr>'
+    return `
+      <div class="detail-card">
+        <h4>Team Members <span style="font-weight:400;font-size:11px;color:#64748b">${members.length} ${members.length === 1 ? 'member' : 'members'}</span></h4>
+        <table style="width:100%">
+          <thead><tr><th>Member</th><th>Product</th><th>Created</th><th></th></tr></thead>
+          <tbody>${memberRows}</tbody>
+        </table>
+      </div>`
+  })() : ''
+
+  return `
+    <div class="detail-card">
+      <h4>
+        Entitlements
+        <button data-action="ent-add" data-user-id="${u.id}" style="background:#667eea;color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;text-transform:none;letter-spacing:0">+ Add</button>
+      </h4>
+      <table style="width:100%">
+        <thead><tr>
+          <th>Product</th><th>License</th><th>Billing</th><th>Starts</th><th>Expires</th><th>Devices</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${membersBlock}`
+}
+
+async function unlinkTeamMember(userId) {
+  if (!confirm('Remove this user from the team? They will lose access until re-assigned.')) return
+  try {
+    const res = await fetch(API + '/users/' + userId, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ member_of_license_id: null }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    await loadUsers()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+function renderActivationsInline(userId) {
+  const activations = (activationsCache.get(userId) || []).filter(a => !a.deactivated_at)
+  const rows = activations.length
+    ? activations.map(a => {
+        const src = a.activation_source || 'online'
+        const srcBadge = src === 'offline'
+          ? '<span style="background:#fde68a;color:#92400e;padding:1px 6px;border-radius:3px;font-size:10px;margin-left:4px">offline</span>'
+          : ''
+        const lastSeen = a.last_seen_at
+          ? esc(a.last_seen_at.replace('T',' ').slice(0,16))
+          : (src === 'offline' ? '<span style="color:#92400e">never (offline)</span>' : '—')
+        return `
+        <tr>
+          <td><code>${esc(a.product_code)}</code>${srcBadge}</td>
+          <td>${esc(a.platform) || '—'} ${esc(a.os_version)}</td>
+          <td>${esc(a.app_version) || '—'}</td>
+          <td style="color:#888;font-size:11px">${lastSeen}</td>
+          <td><button data-action="act-deactivate" data-user-id="${userId}" data-act-id="${a.id}" style="background:#e53e3e;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px">Deactivate</button></td>
+        </tr>`
+      }).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:16px">No active devices</td></tr>'
+
+  return `
+    <div class="detail-card">
+      <h4>Active Devices <span style="font-weight:400;font-size:11px;color:#64748b">${activations.length} ${activations.length === 1 ? 'device' : 'devices'}</span></h4>
+      <table style="width:100%">
+        <thead><tr><th>Product</th><th>Platform</th><th>App Ver</th><th>Last Seen</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`
+}
+
+async function toggleUserRow(userId) {
+  if (expandedUsers.has(userId)) {
+    expandedUsers.delete(userId)
+    renderUsers()
+    return
+  }
+  expandedUsers.add(userId)
+  renderUsers()
+  try {
+    const res = await fetch(API + '/users/' + userId + '/activations', { headers: authHeaders() })
+    const data = await res.json()
+    activationsCache.set(userId, data.activations || [])
+    renderUsers()
+  } catch (e) { console.error(e) }
+}
+
+// Populate the team-membership dropdown with every TEAM entitlement across
+// all users (excluding `excludeUserId`'s own entitlements, since you can't
+// be a member of your own team). Options show "owner@example.com —
+// tyllink_terminal (member_count / max_devices)" so the admin can see
+// capacity at a glance. Call with selectedId to pre-select the current value.
+function populateTeamDropdown(selectedId = '', excludeUserId = null) {
+  const sel = document.getElementById('userModalTeam')
+  const opts = ['<option value="">— Not a team member —</option>']
+  for (const u of usersCache) {
+    if (u.id === excludeUserId) continue
+    for (const e of (u.entitlements || [])) {
+      if (e.license_type !== 'TEAM') continue
+      const used = (e.member_count || 0)
+      const cap = e.max_devices || 0
+      const label = `${u.email} — ${e.product_code} (${used} members • ${e.active_devices || 0}/${cap} seats)`
+      opts.push(`<option value="${e.id}">${esc(label)}</option>`)
+    }
+  }
+  sel.innerHTML = opts.join('')
+  if (selectedId) sel.value = String(selectedId)
+}
+
+function showCreateUserModal() {
+  document.getElementById('userModalTitle').textContent = 'Create User'
+  document.getElementById('userModalId').value = ''
+  document.getElementById('userModalEmail').value = ''
+  document.getElementById('userModalName').value = ''
+  document.getElementById('userModalPassword').value = ''
+  document.getElementById('userModalPwHint').textContent = '(required)'
+  populateTeamDropdown('', null)
+  document.getElementById('userModal').classList.remove('hidden')
+}
+
+async function showEditUserModal(id) {
+  const res = await fetch(API + '/users/' + id, { headers: authHeaders() })
+  const u = await res.json()
+  document.getElementById('userModalTitle').textContent = 'Edit User'
+  document.getElementById('userModalId').value = u.id
+  document.getElementById('userModalEmail').value = u.email
+  document.getElementById('userModalName').value = u.name || ''
+  document.getElementById('userModalPassword').value = ''
+  document.getElementById('userModalPwHint').textContent = '(leave blank to keep current)'
+  populateTeamDropdown(u.member_of_license_id || '', u.id)
+  document.getElementById('userModal').classList.remove('hidden')
+}
+
+async function saveUser() {
+  const id = document.getElementById('userModalId').value
+  const body = {
+    email: document.getElementById('userModalEmail').value,
+    name: document.getElementById('userModalName').value,
+  }
+  const pw = document.getElementById('userModalPassword').value
+  if (pw) body.password = pw
+  // member_of_license_id is always sent on PUT (including null for "unassign")
+  // so the server treats "cleared dropdown" as an explicit clear, not a skip.
+  // On create, only send if non-empty.
+  const teamVal = document.getElementById('userModalTeam').value
+  if (id) {
+    body.member_of_license_id = teamVal === '' ? null : parseInt(teamVal, 10)
+  } else if (teamVal) {
+    body.member_of_license_id = parseInt(teamVal, 10)
+  }
+  const url = API + '/users' + (id ? '/' + id : '')
+  const method = id ? 'PUT' : 'POST'
+  try {
+    const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    closeModal('userModal')
+    loadUsers()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+async function deleteUser(id, email) {
+  if (!confirm('Delete ' + email + '? Their activations will also be removed.')) return
+  await fetch(API + '/users/' + id, { method: 'DELETE', headers: authHeaders() })
+  loadUsers()
+}
+
+async function forceDeactivate(userId, actId) {
+  if (!confirm('Force-deactivate this device?')) return
+  await fetch(API + '/users/' + userId + '/activations/' + actId + '/deactivate', { method: 'POST', headers: authHeaders() })
+  // Refresh the user's activations and re-render.
+  try {
+    const res = await fetch(API + '/users/' + userId + '/activations', { headers: authHeaders() })
+    const data = await res.json()
+    activationsCache.set(userId, data.activations || [])
+  } catch (e) { console.error(e) }
+  await loadUsers()
+}
+
+async function showEntitlementModal(userId, entId) {
+  entitlementContextUserId = userId
+  const productSel = document.getElementById('entModalProduct')
+  // Lazy-load apps so the Product dropdown isn't empty if the admin jumped
+  // straight from Users to creating an entitlement without visiting Apps tab.
+  if (!appsCache.length) {
+    try {
+      const res = await fetch(API + '/apps', { headers: authHeaders() })
+      if (res.ok) {
+        const data = await res.json()
+        appsCache = data.apps
+      }
+    } catch (e) { console.error(e) }
+  }
+  productSel.innerHTML = appsCache.map(a => `<option value="${esc(a.app_code)}">${esc(a.app_name)} (${esc(a.app_code)})</option>`).join('')
+  const today = new Date().toISOString().slice(0,10)
+  const nextYear = new Date(); nextYear.setFullYear(nextYear.getFullYear() + 1)
+  document.getElementById('entModalId').value = ''
+  document.getElementById('entModalStart').value = today
+  document.getElementById('entModalExpiry').value = nextYear.toISOString().slice(0,10)
+  document.getElementById('entModalMaxDevices').value = 1
+  document.getElementById('entModalLicenseType').value = 'INDIVIDUAL'
+  document.getElementById('entModalBillingType').value = 'PAID'
+  document.getElementById('entModalStatus').value = 'active'
+
+  if (entId) {
+    const user = usersCache.find(u => u.id === userId)
+    const ent = user && (user.entitlements || []).find(e => e.id === entId)
+    if (ent) {
+      document.getElementById('entitlementModalTitle').textContent = 'Edit Entitlement'
+      document.getElementById('entModalId').value = ent.id
+      productSel.value = ent.product_code
+      productSel.disabled = true
+      document.getElementById('entModalLicenseType').value = ent.license_type
+      document.getElementById('entModalBillingType').value = ent.billing_type
+      document.getElementById('entModalStart').value = ent.start_date || today
+      document.getElementById('entModalExpiry').value = ent.expiry_date || ''
+      document.getElementById('entModalMaxDevices').value = ent.max_devices || 1
+      document.getElementById('entModalStatus').value = ent.status || 'active'
+    }
+  } else {
+    document.getElementById('entitlementModalTitle').textContent = 'Add Entitlement'
+    productSel.disabled = false
+  }
+
+  document.getElementById('entitlementModal').classList.remove('hidden')
+}
+
+async function saveEntitlement() {
+  if (entitlementContextUserId == null) return
+  const id = document.getElementById('entModalId').value
+  const body = {
+    product_code: document.getElementById('entModalProduct').value,
+    license_type: document.getElementById('entModalLicenseType').value,
+    billing_type: document.getElementById('entModalBillingType').value,
+    start_date: document.getElementById('entModalStart').value,
+    expiry_date: document.getElementById('entModalExpiry').value,
+    max_devices: parseInt(document.getElementById('entModalMaxDevices').value) || 1,
+    status: document.getElementById('entModalStatus').value,
+  }
+  const url = API + '/users/' + entitlementContextUserId + '/entitlements' + (id ? '/' + id : '')
+  const method = id ? 'PUT' : 'POST'
+  try {
+    const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    closeModal('entitlementModal')
+    await loadUsers()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+async function deleteEntitlement(userId, entId) {
+  if (!confirm('Remove this entitlement? Its active devices will also be removed.')) return
+  await fetch(API + '/users/' + userId + '/entitlements/' + entId, { method: 'DELETE', headers: authHeaders() })
+  await loadUsers()
+}
+
+// ───────── Offline activation code ─────────
+function showOfflineCodeModal(userId, entId) {
+  document.getElementById('offlineCodeUserId').value = userId
+  document.getElementById('offlineCodeEntId').value = entId
+  document.getElementById('offlineCodeDays').value = 30
+  document.getElementById('offlineCodeFingerprint').value = ''
+  document.getElementById('offlineCodeResult').style.display = 'none'
+  document.getElementById('offlineCodeBlob').value = ''
+  document.getElementById('offlineCodeMeta').textContent = ''
+
+  // Populate the "Activate as" dropdown only for TEAM entitlements. Contains
+  // the owner themselves + every team member; admin picks whose laptop this
+  // code is for so the offline JWT and activation row both attribute correctly.
+  const owner = usersCache.find(u => u.id === userId)
+  const ent = owner && (owner.entitlements || []).find(e => e.id === entId)
+  const memberRow = document.getElementById('offlineCodeMemberRow')
+  const memberSel = document.getElementById('offlineCodeMember')
+  if (ent && ent.license_type === 'TEAM') {
+    const members = usersCache.filter(u => u.member_of_license_id === entId)
+    const opts = [`<option value="">${esc(owner.email)} (owner)</option>`]
+    for (const m of members) {
+      opts.push(`<option value="${m.id}">${esc(m.email)}${m.name ? ' — ' + esc(m.name) : ''}</option>`)
+    }
+    memberSel.innerHTML = opts.join('')
+    memberSel.value = ''
+    memberRow.style.display = 'block'
+  } else {
+    memberSel.innerHTML = ''
+    memberRow.style.display = 'none'
+  }
+
+  document.getElementById('offlineCodeModal').classList.remove('hidden')
+}
+
+async function generateOfflineCode() {
+  const userId = document.getElementById('offlineCodeUserId').value
+  const entId = document.getElementById('offlineCodeEntId').value
+  const days = parseInt(document.getElementById('offlineCodeDays').value) || 30
+  const fp = document.getElementById('offlineCodeFingerprint').value.trim()
+  const memberSel = document.getElementById('offlineCodeMember')
+  const memberUserId = (document.getElementById('offlineCodeMemberRow').style.display !== 'none' && memberSel.value)
+    ? parseInt(memberSel.value, 10)
+    : null
+  // Client-side validation — server re-checks but fail fast for better UX.
+  if (!fp) {
+    alert('Device fingerprint is required. Ask the user to copy it from Settings → License → Device fingerprint.')
+    return
+  }
+  if (!/^[a-fA-F0-9]{64}$/.test(fp)) {
+    alert('Device fingerprint must be a 64-character hex string.')
+    return
+  }
+  const body = { valid_for_days: days, device_fingerprint_hash: fp }
+  if (memberUserId) body.member_user_id = memberUserId
+  try {
+    const res = await fetch(API + '/users/' + userId + '/entitlements/' + entId + '/offline-code', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(body),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error)
+    document.getElementById('offlineCodeBlob').value = data.code
+    const attribution = data.is_team_member_code
+      ? `${esc(data.user_email)} (team member of ${esc(data.owner_email)})`
+      : esc(data.user_email)
+    document.getElementById('offlineCodeMeta').textContent =
+      `${attribution} • ${esc(data.product_code)} • ${esc(data.license_type)}/${esc(data.billing_type)} • expires ${new Date(data.expires_at).toLocaleString()}` +
+      ` • bound to device ${String(data.device_fingerprint_hash).slice(0,16)}…` +
+      ` • activation #${esc(data.activation_id)} (${esc(data.activation_source)})`
+    document.getElementById('offlineCodeResult').style.display = 'block'
+    // Refresh user list so the new activation shows up in Active Devices.
+    if (typeof loadUsers === 'function') { try { await loadUsers() } catch {} }
+  } catch (e) {
+    alert('Error: ' + e.message)
+  }
+}
+
+function copyOfflineCode() {
+  const ta = document.getElementById('offlineCodeBlob')
+  ta.select()
+  navigator.clipboard.writeText(ta.value).then(() => {
+    const btn = event.target
+    const original = btn.textContent
+    btn.textContent = 'Copied!'
+    setTimeout(() => { btn.textContent = original }, 1500)
+  })
+}
+
+// ───────── Apps tab ─────────
+async function loadAppsList() {
+  try {
+    const res = await fetch(API + '/apps', { headers: authHeaders() })
+    if (res.status === 401) return logout()
+    const data = await res.json()
+    appsCache = data.apps
+    document.getElementById('appsTable').innerHTML = data.apps.map(a => `
+      <tr>
+        <td><code>${esc(a.app_code)}</code></td>
+        <td>${esc(a.app_name)}</td>
+        <td>${(a.blocked_app_versions || []).length ? (a.blocked_app_versions).map(v => `<span class="badge" style="background:#fed7d7;color:#9b2c2c;margin-right:4px">${esc(v)}</span>`).join('') : '<span style="color:#aaa">none</span>'}</td>
+        <td>
+          <button data-action="app-edit" data-id="${a.id}" style="background:#64748b;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin-right:4px">Edit</button>
+          <button data-action="app-delete" data-id="${a.id}" data-code="${esc(a.app_code)}" style="background:#e53e3e;color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">Delete</button>
+        </td>
+      </tr>
+    `).join('')
+    document.querySelectorAll('#appsTable [data-action]').forEach(btn => {
+      const id = parseInt(btn.dataset.id)
+      if (btn.dataset.action === 'app-edit') btn.onclick = () => showEditAppModal(id)
+      if (btn.dataset.action === 'app-delete') btn.onclick = () => deleteApp(id, btn.dataset.code)
+    })
+  } catch (e) { console.error(e) }
+}
+
+function showCreateAppModal() {
+  document.getElementById('appModalTitle').textContent = 'Register App'
+  document.getElementById('appModalId').value = ''
+  document.getElementById('appModalCode').value = ''
+  document.getElementById('appModalCode').disabled = false
+  document.getElementById('appModalName').value = ''
+  document.getElementById('appModalBlocked').value = ''
+  document.getElementById('appModal').classList.remove('hidden')
+}
+
+function showEditAppModal(id) {
+  const app = appsCache.find(a => a.id === id)
+  if (!app) return
+  document.getElementById('appModalTitle').textContent = 'Edit App'
+  document.getElementById('appModalId').value = app.id
+  document.getElementById('appModalCode').value = app.app_code
+  document.getElementById('appModalCode').disabled = true
+  document.getElementById('appModalName').value = app.app_name
+  document.getElementById('appModalBlocked').value = (app.blocked_app_versions || []).join(', ')
+  document.getElementById('appModal').classList.remove('hidden')
+}
+
+async function saveApp() {
+  const id = document.getElementById('appModalId').value
+  const blocked = document.getElementById('appModalBlocked').value
+    .split(',').map(s => s.trim()).filter(Boolean)
+  try {
+    if (id) {
+      const body = { app_name: document.getElementById('appModalName').value, blocked_app_versions: blocked }
+      const res = await fetch(API + '/apps/' + id, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+    } else {
+      const body = {
+        app_code: document.getElementById('appModalCode').value,
+        app_name: document.getElementById('appModalName').value,
+      }
+      const res = await fetch(API + '/apps', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) })
+      const created = await res.json()
+      if (!res.ok) throw new Error(created.error)
+      if (blocked.length) {
+        await fetch(API + '/apps/' + created.id, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ blocked_app_versions: blocked }) })
+      }
+    }
+    closeModal('appModal')
+    loadAppsList()
+  } catch (e) { alert('Error: ' + e.message) }
+}
+
+async function deleteApp(id, code) {
+  if (!confirm('Delete app "' + code + '"?')) return
+  const res = await fetch(API + '/apps/' + id, { method: 'DELETE', headers: authHeaders() })
+  const data = await res.json()
+  if (!res.ok) return alert('Error: ' + data.error)
+  loadAppsList()
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden') }
 
 async function loadSettings() {
   try {
@@ -402,13 +1372,11 @@ async function loadSettings() {
     if (data.networkAddresses && data.networkAddresses.length > 0) {
       document.getElementById('networkInfo').style.display = 'block'
       document.getElementById('networkAddresses').innerHTML = data.networkAddresses.map(a =>
-        `<div style="margin:4px 0"><code style="background:#e2e8f0;padding:2px 8px;border-radius:4px">http://${a.address}:${data.port}</code> <span style="color:#888">(${a.name})</span></div>`
+        `<div style="margin:4px 0"><code style="background:#e2e8f0;padding:2px 8px;border-radius:4px">http://${esc(a.address)}:${esc(data.port)}</code> <span style="color:#888">(${esc(a.name)})</span></div>`
       ).join('')
     }
     document.getElementById('jwtStatus').textContent = data.jwtSecretSet ? '(Configured)' : '(Using default — change this!)'
     document.getElementById('jwtStatus').style.color = data.jwtSecretSet ? '#38a169' : '#e53e3e'
-    document.getElementById('saltStatus').textContent = data.keySaltSet ? '(Configured)' : '(Using default — change this!)'
-    document.getElementById('saltStatus').style.color = data.keySaltSet ? '#38a169' : '#e53e3e'
     // HTTPS fields
     document.getElementById('settHttpsEnabled').checked = data.httpsEnabled || false
     document.getElementById('settHttpsPort').value = data.httpsPort || 4443
@@ -441,8 +1409,6 @@ async function saveSettings() {
   if (pass) body.adminPassword = pass
   const jwt = document.getElementById('settJwtSecret').value
   if (jwt) body.jwtSecret = jwt
-  const salt = document.getElementById('settKeySalt').value
-  if (salt) body.keySalt = salt
 
   try {
     const res = await fetch(API + '/settings', { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) })
@@ -489,77 +1455,6 @@ async function restartServer() {
   }
 }
 
-async function revokeKey(id) {
-  if (!confirm('Revoke this license key? The key will be disabled but kept in records.')) return
-  try {
-    await fetch(API + '/keys/' + id, { method: 'DELETE', headers: authHeaders() })
-    loadKeys()
-    loadStats()
-  } catch (e) { alert('Error: ' + e.message) }
-}
-
-function getSelectedIds() {
-  return [...document.querySelectorAll('.key-checkbox:checked')].map(cb => parseInt(cb.value))
-}
-
-function updateBulkBar() {
-  const ids = getSelectedIds()
-  const bar = document.getElementById('bulkActions')
-  const count = document.getElementById('selectedCount')
-  if (ids.length > 0) {
-    bar.style.display = 'flex'
-    count.textContent = ids.length + ' selected'
-  } else {
-    bar.style.display = 'none'
-  }
-}
-
-function toggleSelectAll(el) {
-  document.querySelectorAll('.key-checkbox').forEach(cb => cb.checked = el.checked)
-  updateBulkBar()
-}
-
-function clearSelection() {
-  document.querySelectorAll('.key-checkbox').forEach(cb => cb.checked = false)
-  document.getElementById('selectAll').checked = false
-  updateBulkBar()
-}
-
-async function bulkRevoke() {
-  const ids = getSelectedIds()
-  if (ids.length === 0) return
-  if (!confirm('Revoke ' + ids.length + ' selected key(s)? They will be disabled but kept in records.')) return
-  try {
-    const res = await fetch(API + '/keys/bulk/revoke', { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) })
-    const data = await res.json()
-    alert(data.message)
-    loadKeys(); loadStats()
-  } catch (e) { alert('Error: ' + e.message) }
-}
-
-async function bulkDelete() {
-  const ids = getSelectedIds()
-  if (ids.length === 0) return
-  if (!confirm('⚠️ PERMANENTLY DELETE ' + ids.length + ' selected key(s)?\n\nThis will remove the keys and ALL activations. This CANNOT be undone!')) return
-  if (!confirm('Are you absolutely sure? This is irreversible.')) return
-  try {
-    const res = await fetch(API + '/keys/bulk/delete', { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) })
-    const data = await res.json()
-    alert(data.message)
-    loadKeys(); loadStats()
-  } catch (e) { alert('Error: ' + e.message) }
-}
-
-async function deleteKeyPermanent(id, key) {
-  if (!confirm('⚠️ PERMANENTLY DELETE this license key?\n\nKey: ' + key + '\n\nThis will remove the key and ALL its activations from the database. This action CANNOT be undone!')) return
-  if (!confirm('Are you absolutely sure? This is irreversible.')) return
-  try {
-    const res = await fetch(API + '/keys/' + id + '/permanent', { method: 'DELETE', headers: authHeaders() })
-    if (!res.ok) { const err = await res.json(); alert('Error: ' + (err.error || 'Delete failed')); return }
-    loadKeys()
-    loadStats()
-  } catch (e) { alert('Error: ' + e.message) }
-}
 </script>
 </body>
 </html>

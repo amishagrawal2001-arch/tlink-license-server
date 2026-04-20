@@ -64,7 +64,6 @@ if not exist "%INSTALL_DIR%\.env" (
         (
             echo PORT=4000
             echo JWT_SECRET=change-me-to-a-random-string
-            echo KEY_SALT=change-me-to-another-random-string
             echo ADMIN_USERNAME=admin
             echo ADMIN_PASSWORD=admin123
             echo CORS_ORIGINS=http://localhost:*
